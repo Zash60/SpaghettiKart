@@ -3,6 +3,17 @@
 #include <cstring>
 #include "InputGen.h"
 
+#ifdef HEADLESS
+// Real physics: use actual Player struct from game
+#include "common_structs.h"
+struct MK64State {
+    Player players[8];
+    uint32_t frame = 0;
+    uint32_t rngSeed = 0;
+    float courseTimer = 0;
+    s32 globalTimer = 0;
+};
+#else
 struct KartSnapshot {
     int32_t posX = 0, posY = 0, posZ = 0;
     int16_t velX = 0, velY = 0, velZ = 0;
@@ -11,12 +22,12 @@ struct KartSnapshot {
     uint8_t lap = 0;
     uint8_t checkpoint = 0;
 };
-
 struct MK64State {
     KartSnapshot karts[8];
     uint32_t frame = 0;
     uint32_t rngSeed = 0;
 };
+#endif
 
 MK64State save_state();
 void load_state(const MK64State& s);

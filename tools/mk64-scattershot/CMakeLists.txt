@@ -16,7 +16,13 @@ target_include_directories(mk64-scattershot PRIVATE
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/include
   ${CMAKE_SOURCE_DIR}/src
+  ${CMAKE_SOURCE_DIR}/libultraship/include
 )
 if(TARGET SpaghettifyHeadless)
   target_link_libraries(mk64-scattershot PRIVATE SpaghettifyHeadless)
+  target_compile_definitions(mk64-scattershot PRIVATE HEADLESS=1)
+endif()
+# standalone mock build also needs no HEADLESS
+if(SCATTERSHOT_HEADLESS)
+  target_compile_definitions(mk64-scattershot PRIVATE HEADLESS=1)
 endif()
