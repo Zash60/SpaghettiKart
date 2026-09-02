@@ -1,6 +1,6 @@
 #include "Scattershot.h"
 #include "Utils.h"
-GlobalState::GlobalState(int maxH): maxHashes(maxH), hashTab(maxH, -1) {}
+GlobalState::GlobalState(int maxH): maxHashes(maxH), hashTab(maxH, -1) { blocks.reserve(maxH); segments.reserve(maxH); }
 int GlobalState::findNewHashInx(uint64_t hashPos){
  uint64_t tmp=hashPos;
  for(int i=0;i<100;i++){ int inx=tmp%maxHashes; if(hashTab[inx]==-1) return inx; Utils::xoro_r(&tmp); }
