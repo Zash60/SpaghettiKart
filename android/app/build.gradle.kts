@@ -46,7 +46,7 @@ android {
         versionName = "2.0.0"
 
         ndk {
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+            abiFilters += listOf("arm64-v8a")
         }
 
         externalNativeBuild {
@@ -102,7 +102,7 @@ android {
     externalNativeBuild {
         cmake {
             path = File(repositoryRoot, "CMakeLists.txt")
-            version = "3.30.3"
+            version = "4.1.2"
         }
     }
 
