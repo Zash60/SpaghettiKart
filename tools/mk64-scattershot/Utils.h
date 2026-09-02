@@ -1,2 +1,3 @@
-// stub Utils.h for scattershot MVP - TODO implement
 #pragma once
+#include <cstdint>
+namespace Utils { void xoro_r(uint64_t* seed); }
