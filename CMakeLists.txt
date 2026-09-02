@@ -39,6 +39,7 @@ endif()
 
 # Toggle for GLES (Required for many ARM/Mobile platforms)
 option(USE_OPENGLES "Use OpenGLES instead of Desktop OpenGL" OFF)
+option(SCATTERSHOT_HEADLESS "Build headless lib for scattershot" OFF)
 
 # Set game compilation version
 set(VERSION us)
@@ -139,6 +140,12 @@ target_include_directories(
                           ${CMAKE_CURRENT_SOURCE_DIR}/include/assets
                           ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_definitions(${PROJECT_NAME} PRIVATE YAML_CPP_STATIC_DEFINE)
+
+if(SCATTERSHOT_HEADLESS)
+  add_library(SpaghettifyHeadless STATIC ${ALL_FILES})
+  target_compile_definitions(SpaghettifyHeadless PRIVATE HEADLESS=1 NO_RENDER=1 NO_AUDIO=1 YAML_CPP_STATIC_DEFINE)
+  target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/assets ${CMAKE_CURRENT_SOURCE_DIR}/src)
+endif()
 
 if(SPAGHETTIKART_IOS)
   target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_IOS=1)
@@ -331,4 +338,8 @@ if(NOT ANDROID)
   set(CPACK_PROJECT_CONFIG_FILE
       ${CMAKE_SOURCE_DIR}/cmake/configure-packaging.cmake)
   include(cmake/packaging.cmake)
+endif()
+
+if(SCATTERSHOT_HEADLESS AND NOT ANDROID)
+  add_subdirectory(tools/mk64-scattershot)
 endif()

@@ -1,0 +1,8 @@
+course = "mario_raceway"
+kart = "mario"
+threads = 8
+scatter_depth = 30
+max_frames_per_scatter = 600
+max_blocks = 1000000
+time_budget_sec = 300
+target_lap_ms = 90000
