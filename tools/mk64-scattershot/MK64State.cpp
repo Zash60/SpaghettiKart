@@ -29,9 +29,9 @@ void load_state(const MK64State& s){
 }
 uint64_t hashPos(const MK64State& s){
     uint64_t seed = 0xCABBA6ECABBA6E;
-    seed += int(s.players[0].pos[0]/100) + 0xCABBA6E; Utils::xoro_r(&seed);
-    seed += int(s.players[0].pos[1]/100) + 0xCABBA6E; Utils::xoro_r(&seed);
-    seed += int(s.players[0].pos[2]/100) + 0xCABBA6E; Utils::xoro_r(&seed);
+    seed += int(s.players[0].pos[0]/10) + 0xCABBA6E; Utils::xoro_r(&seed);
+    seed += int(s.players[0].pos[1]/10) + 0xCABBA6E; Utils::xoro_r(&seed);
+    seed += int(s.players[0].pos[2]/10) + 0xCABBA6E; Utils::xoro_r(&seed);
     seed += int(s.players[0].speed*10) + 0xCABBA6E; Utils::xoro_r(&seed);
     return seed;
 }
