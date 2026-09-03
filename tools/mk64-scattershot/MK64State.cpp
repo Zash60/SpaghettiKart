@@ -59,6 +59,11 @@ void kart_tick(struct MK64Input inp){
         gPlayers[0].pos[0] += sinf(yaw) * gPlayers[0].speed + inp.stick_x * 0.02f;
         gPlayers[0].pos[2] += cosf(yaw) * gPlayers[0].speed;
     }
+    // dummy lap line: every 1500 z units = 1 lap (real finish line needs real course data)
+    {
+        int laps = (int)(gPlayers[0].pos[2] / 1500.0f);
+        if(laps > gPlayers[0].lapCount) gPlayers[0].lapCount = (s16)laps;
+    }
     gCourseTimer += 0.016666f;
     gGlobalTimer++;
 }
