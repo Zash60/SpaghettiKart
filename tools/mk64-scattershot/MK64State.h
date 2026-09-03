@@ -41,3 +41,6 @@ extern uint32_t gMockFrame;
 extern uint32_t gMockRngSeed;
 #endif
 void kart_tick(struct MK64Input inp); // forward decl for test
+#ifdef HEADLESS
+void headless_init_track(const char* track);
+#endif

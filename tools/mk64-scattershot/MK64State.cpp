@@ -8,14 +8,22 @@ uint32_t gMockRngSeed = 0;
 #endif
 
 #ifdef HEADLESS
-// headless minimal: no real engine link, use Player struct directly with mock physics
-// SpaghettifyHeadless is still built for future real physics, but tool uses local state to avoid undefined refs
-static MK64State gHeadlessState{};
+#include "defines.h"
+#include "macros.h"
+#include "main.h"
+#include "code_80005FD0.h"
 MK64State save_state(){
-    return gHeadlessState;
+    MK64State s;
+    memcpy(s.players, gPlayers, sizeof(s.players));
+    s.frame = gGlobalTimer;
+    s.courseTimer = gCourseTimer;
+    s.globalTimer = gGlobalTimer;
+    return s;
 }
 void load_state(const MK64State& s){
-    gHeadlessState = s;
+    memcpy(gPlayers, s.players, sizeof(s.players));
+    gGlobalTimer = s.globalTimer;
+    gCourseTimer = s.courseTimer;
 }
 uint64_t hashPos(const MK64State& s){
     uint64_t seed = 0xCABBA6ECABBA6E;
@@ -29,13 +37,27 @@ bool truncEq(const MK64State& a, const MK64State& b){
     return int(a.players[0].pos[0])==int(b.players[0].pos[0]) && int(a.players[0].pos[1])==int(b.players[0].pos[1]) && int(a.players[0].pos[2])==int(b.players[0].pos[2]) && int(a.players[0].speed)==int(b.players[0].speed);
 }
 void kart_tick(struct MK64Input inp){
-    gHeadlessState.players[0].pos[0] += inp.stick_x * 0.5f;
-    gHeadlessState.players[0].pos[2] += inp.stick_y * 0.5f;
-    if(inp.A) gHeadlessState.players[0].speed += 0.5f;
-    else gHeadlessState.players[0].speed *= 0.99f;
-    gHeadlessState.frame++;
-    gHeadlessState.globalTimer++;
-    gHeadlessState.courseTimer += 0.016666f;
+    gControllers[0].rawStickX = inp.stick_x;
+    gControllers[0].rawStickY = inp.stick_y;
+    gControllers[0].button = 0;
+    if(inp.A) gControllers[0].button |= 0x8000;
+    if(inp.B) gControllers[0].button |= 0x4000;
+    if(inp.R) gControllers[0].button |= 0x0010;
+    if(inp.Z) gControllers[0].button |= 0x0020;
+    if(inp.L) gControllers[0].button |= 0x0020;
+    update_player(0);
+    gCourseTimer += 0.016666f;
+    gGlobalTimer++;
+}
+void headless_init_track(const char* track){
+    // minimal init: clear and set player 0 at origin, actual LoadTrack would be called here if available
+    extern void CM_CleanWorld(void);
+    // try to load track if symbol exists (from courses)
+    // fallback to zero init if not
+    memset(gPlayers, 0, sizeof(gPlayers));
+    gPlayers[0].pos[0] = 0; gPlayers[0].pos[1] = 0; gPlayers[0].pos[2] = 0;
+    gGlobalTimer = 0; gCourseTimer = 0;
+    (void)track;
 }
 #else
 MK64State save_state(){
