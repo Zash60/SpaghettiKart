@@ -10,8 +10,10 @@ uint32_t gMockRngSeed = 0;
 #ifdef HEADLESS
 #include "defines.h"
 #include "macros.h"
+extern "C" {
 #include "main.h"
 #include "code_80005FD0.h"
+}
 MK64State save_state(){
     MK64State s;
     memcpy(s.players, gPlayers, sizeof(s.players));
