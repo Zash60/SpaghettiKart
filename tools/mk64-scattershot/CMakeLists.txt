@@ -141,3 +141,6 @@ find_package(Threads QUIET)
 if(Threads_FOUND)
   target_link_libraries(mk64-scattershot PRIVATE Threads::Threads)
 endif()
+# GC unused functions in monolithic code_80005FD0.c.o so only update_player path is kept
+target_compile_options(mk64-scattershot PRIVATE -ffunction-sections -fdata-sections)
+target_link_options(mk64-scattershot PRIVATE -Wl,--gc-sections)
