@@ -83,7 +83,7 @@ bool IsSkyscraper() { return false; }
 bool IsChocoMountain() { return false; }
 bool IsBansheeBoardwalk() { return false; }
 
-// --- audio (src/audio, excluded) ---
+// --- audio (src/audio, excluded) signatures from src/audio/external.h ---
 void func_800C9060(u8 a, u32 b) { (void)a;(void)b; }
 void func_800C90F4(u8 a, u32 b) { (void)a;(void)b; }
 void func_800C92CC(u8 a, u32 b) { (void)a;(void)b; }
@@ -93,29 +93,27 @@ void func_800C9EF4(Vec3f a, u32 b) { (void)a;(void)b; }
 void func_800CA270(void) {}
 void func_800CAC60(s32 a) { (void)a; }
 void func_800CAD40(s32 a) { (void)a; }
-void func_800CA008(s32 a) { (void)a; }
-void func_800CA0A0(s32 a) { (void)a; }
-void func_800CA0B8(s32 a) { (void)a; }
-void func_800CA0CC(s32 a) { (void)a; }
-void func_800CB134(s32 a) { (void)a; }
-void func_800CB14C(s32 a) { (void)a; }
-void play_sound2(u8 a, u32 b) { (void)a;(void)b; }
-void play_sequence2(u8 a) { (void)a; }
+void func_800CA008(u8 a, u8 b) { (void)a;(void)b; }
+void func_800CA0A0(void) {}
+void func_800CA0B8(void) {}
+void func_800CA0CC(void) {}
+void func_800CB134(void) {}
+void func_800CB14C(void) {}
+void play_sound2(s32 a) { (void)a; }
+void play_sequence2(u16 a) { (void)a; }
 void func_80092C80(void) {}
 void func_8009265C(void) {}
 void func_8009E5BC(void) {}
-void func_8009E088(void) {}
+void func_8009E088(s32 a, s32 b) { (void)a;(void)b; }
 
-// --- misc port/engine ---
+// --- misc port/engine signatures from src/port/Game.h + include/mk64.h ---
 bool GameEngine_OTRSigCheck(const char* p) { (void)p; return false; }
 void FrameInterpolation_DontInterpolateCamera(void) {}
 int OTRGetGameRenderWidth(void) { return 320; }
 int OTRGetRectDimensionFromLeftEdge(int v) { (void)v; return 0; }
-void gSPDisplayList(void* a, void* b) { (void)a;(void)b; }
-void gSPVertex(void* a, int b, int c) { (void)a;(void)b;(void)c; }
-void CM_DrawObjects(void* a) { (void)a; }
-void CM_DrawParticles(void* a) { (void)a; }
-void CM_DrawTrackObjects(void* a) { (void)a; }
+void CM_DrawObjects(s32 cameraId) { (void)cameraId; }
+void CM_DrawParticles(s32 cameraId) { (void)cameraId; }
+void CM_DrawTrackObjects(s32 cameraId) { (void)cameraId; }
 
 } // extern "C"
 
