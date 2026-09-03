@@ -52,9 +52,8 @@ void kart_tick(struct MK64Input inp){
 void headless_init_track(const char* track){
     // minimal init: clear and set player 0 at origin, actual LoadTrack would be called here if available
     extern void CM_CleanWorld(void);
-    // try to load track if symbol exists (from courses)
-    // fallback to zero init if not
-    memset(gPlayers, 0, sizeof(gPlayers));
+    // gPlayers is extern Player gPlayers[] (incomplete), use Player size
+    memset(gPlayers, 0, sizeof(Player) * 8);
     gPlayers[0].pos[0] = 0; gPlayers[0].pos[1] = 0; gPlayers[0].pos[2] = 0;
     gGlobalTimer = 0; gCourseTimer = 0;
     (void)track;
