@@ -153,6 +153,7 @@ if(SCATTERSHOT_HEADLESS)
   list(FILTER HEADLESS_FILES EXCLUDE REGEX "assets/.*")
   add_library(SpaghettifyHeadless STATIC ${HEADLESS_FILES})
   target_compile_definitions(SpaghettifyHeadless PRIVATE HEADLESS=1 NO_RENDER=1 NO_AUDIO=1 YAML_CPP_STATIC_DEFINE F3DEX_GBI=1 VERSION_US=1 _LANGUAGE_C NDEBUG NON_MATCHING=1 NON_EQUIVALENT=1 AVOID_UB=1 ENABLE_RUMBLE=1 _USE_MATH_DEFINES SPAGHETTI_VERSION="${PROJECT_VERSION}")
+  target_compile_options(SpaghettifyHeadless PRIVATE -Wno-narrowing -Wno-error=narrowing -fpermissive -Wno-error)
   target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/assets ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/include ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/include/libultraship)
   # threadpool for libultraship ResourceManager
   if(EXISTS ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
