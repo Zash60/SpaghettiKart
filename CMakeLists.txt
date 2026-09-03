@@ -205,6 +205,12 @@ if(SCATTERSHOT_HEADLESS AND TARGET SpaghettifyHeadless)
   elseif(EXISTS ${CMAKE_BINARY_DIR}/_deps/sdl2-src/include/SDL2/SDL.h)
     target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/sdl2-src/include/SDL2)
   endif()
+  if(EXISTS /usr/include/SDL2/SDL.h)
+    target_include_directories(SpaghettifyHeadless PRIVATE /usr/include/SDL2)
+  endif()
+  if(EXISTS /usr/include/SDL2)
+    target_include_directories(SpaghettifyHeadless PRIVATE /usr/include/SDL2)
+  endif()
 endif()
 
 # fmt's consteval format-string checking fails to compile under newer
