@@ -17,6 +17,7 @@ target_include_directories(mk64-scattershot PRIVATE
   ${CMAKE_SOURCE_DIR}/include
   ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_SOURCE_DIR}/libultraship/include
+  ${CMAKE_SOURCE_DIR}/libultraship/include/libultraship
 )
 if(TARGET SpaghettifyHeadless)
   target_link_libraries(mk64-scattershot PRIVATE SpaghettifyHeadless)
