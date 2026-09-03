@@ -8,22 +8,20 @@ uint32_t gMockRngSeed = 0;
 #endif
 
 #ifdef HEADLESS
+#include "defines.h"
+#include "macros.h"
 #include "main.h"
 #include "code_80005FD0.h"
-extern "C" {
- extern s32 gGlobalTimer;
- extern float gCourseTimer;
-}
 MK64State save_state(){
     MK64State s;
-    memcpy(s.players, gPlayers, sizeof(gPlayers));
+    memcpy(s.players, gPlayers, sizeof(s.players));
     s.frame = gGlobalTimer;
     s.courseTimer = gCourseTimer;
     s.globalTimer = gGlobalTimer;
     return s;
 }
 void load_state(const MK64State& s){
-    memcpy(gPlayers, s.players, sizeof(gPlayers));
+    memcpy(gPlayers, s.players, sizeof(s.players));
     gGlobalTimer = s.globalTimer;
     gCourseTimer = s.courseTimer;
 }
