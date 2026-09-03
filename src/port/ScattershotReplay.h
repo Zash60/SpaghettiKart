@@ -14,6 +14,7 @@ extern "C" {
 void Scattershot_OverrideController(void);
 int Scattershot_IsActive(void);
 void Scattershot_Stop(void);
+void Scattershot_AutoLoad(void);
 #ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,6 @@
 #include "ScattershotReplay.h"
 #include "main.h"
+#include <libultraship.h>
 #include <fstream>
 #include <cstdint>
 struct MK64InputLocal { int8_t stick_x, stick_y; bool A,B,Z,R,L; };
@@ -36,3 +37,9 @@ extern "C" void Scattershot_OverrideController(void){
 }
 extern "C" int Scattershot_IsActive(void){ return gScattershotActive ? 1 : 0; }
 extern "C" void Scattershot_Stop(void){ gScattershotActive=false; }
+extern "C" void Scattershot_AutoLoad(void){
+ if (CVarGetInteger("gScattershotAutoLoad", 1) == 0) return;
+ if (gScattershotActive) return;
+ if (LoadScattershotReplay("/sdcard/Download/best.mkr")) return;
+ LoadScattershotReplay("out/best.mkr");
+}

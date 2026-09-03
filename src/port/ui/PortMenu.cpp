@@ -584,6 +584,9 @@ void PortMenu::AddDevTools() {
             Scattershot_Stop();
         })
         .Options(ButtonOptions().Tooltip("Gives control back to the player"));
+    AddWidget(path, "Auto-load on Go", WIDGET_CVAR_CHECKBOX)
+        .CVar("gScattershotAutoLoad")
+        .Options(CheckboxOptions().Tooltip("Automatically loads best.mkr when the 3-2-1-Go countdown ends").DefaultValue(true));
 }
 
 void PortMenu::AddSceneVisibility() {

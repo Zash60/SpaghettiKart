@@ -449,6 +449,10 @@ void start_race(void) {
 
     if (gRaceState == RACE_STAGING) {
         gRaceState = RACE_IN_PROGRESS;
+        {
+            extern void Scattershot_AutoLoad(void);
+            Scattershot_AutoLoad();
+        }
     }
 
     for (i = 0; i < NUM_PLAYERS; i++) {
