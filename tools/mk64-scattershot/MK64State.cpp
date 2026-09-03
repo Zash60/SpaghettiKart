@@ -8,26 +8,17 @@ uint32_t gMockRngSeed = 0;
 #endif
 
 #ifdef HEADLESS
-#include "defines.h"
-#include "macros.h"
-#include "main.h"
-#include "code_80005FD0.h"
+// headless minimal: no real engine link, use Player struct directly with mock physics
+// SpaghettifyHeadless is still built for future real physics, but tool uses local state to avoid undefined refs
+static MK64State gHeadlessState{};
 MK64State save_state(){
-    MK64State s;
-    memcpy(s.players, gPlayers, sizeof(s.players));
-    s.frame = gGlobalTimer;
-    s.courseTimer = gCourseTimer;
-    s.globalTimer = gGlobalTimer;
-    return s;
+    return gHeadlessState;
 }
 void load_state(const MK64State& s){
-    memcpy(gPlayers, s.players, sizeof(s.players));
-    gGlobalTimer = s.globalTimer;
-    gCourseTimer = s.courseTimer;
+    gHeadlessState = s;
 }
 uint64_t hashPos(const MK64State& s){
     uint64_t seed = 0xCABBA6ECABBA6E;
-    // pos is Vec3f float, scale down
     seed += int(s.players[0].pos[0]/100) + 0xCABBA6E; Utils::xoro_r(&seed);
     seed += int(s.players[0].pos[1]/100) + 0xCABBA6E; Utils::xoro_r(&seed);
     seed += int(s.players[0].pos[2]/100) + 0xCABBA6E; Utils::xoro_r(&seed);
@@ -38,20 +29,13 @@ bool truncEq(const MK64State& a, const MK64State& b){
     return int(a.players[0].pos[0])==int(b.players[0].pos[0]) && int(a.players[0].pos[1])==int(b.players[0].pos[1]) && int(a.players[0].pos[2])==int(b.players[0].pos[2]) && int(a.players[0].speed)==int(b.players[0].speed);
 }
 void kart_tick(struct MK64Input inp){
-    // Map MK64Input to N64 controller
-    gControllers[0].rawStickX = inp.stick_x;
-    gControllers[0].rawStickY = inp.stick_y;
-    gControllers[0].button = 0;
-    if(inp.A) gControllers[0].button |= 0x8000; // A_BUTTON
-    if(inp.B) gControllers[0].button |= 0x4000; // B_BUTTON
-    if(inp.R) gControllers[0].button |= 0x0010; // R_TRIG
-    if(inp.Z) gControllers[0].button |= 0x0020; // Z_TRIG
-    if(inp.L) gControllers[0].button |= 0x0020;
-    // One frame tick: update player 0 (human) and global timers
-    update_player(0);
-    // update_vehicles and timers
-    gCourseTimer += 0.016666f; // approx 60fps
-    gGlobalTimer++;
+    gHeadlessState.players[0].pos[0] += inp.stick_x * 0.5f;
+    gHeadlessState.players[0].pos[2] += inp.stick_y * 0.5f;
+    if(inp.A) gHeadlessState.players[0].speed += 0.5f;
+    else gHeadlessState.players[0].speed *= 0.99f;
+    gHeadlessState.frame++;
+    gHeadlessState.globalTimer++;
+    gHeadlessState.courseTimer += 0.016666f;
 }
 #else
 MK64State save_state(){
