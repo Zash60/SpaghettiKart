@@ -143,16 +143,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE YAML_CPP_STATIC_DEFINE)
 
 if(SCATTERSHOT_HEADLESS)
   set(HEADLESS_FILES ${ALL_FILES})
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/port/.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/debug/.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/audio/.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/engine/.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/enhancements/.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/menu.*")
-  # minimal for real Player physics: keep code_80005FD0 but exclude heavy main/memory
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/main\\.c$")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/memory\\.c$")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/player_controller\\.c$")
   list(FILTER HEADLESS_FILES EXCLUDE REGEX "courses/harbour/ghostship_model\\.c$")
   list(FILTER HEADLESS_FILES EXCLUDE REGEX "assets/.*")
   add_library(SpaghettifyHeadless STATIC ${HEADLESS_FILES})
@@ -194,7 +184,7 @@ include(cmake/dependencies/common.cmake)
 
 include(cmake/dependencies/FindLib.cmake)
 
-# headless needs headers from libultraship fetch (threadpool, imgui, sdl, etc)
+# headless needs headers from libultraship fetch (threadpool, imgui, sdl, toml++, etc)
 if(SCATTERSHOT_HEADLESS AND TARGET SpaghettifyHeadless)
   if(EXISTS ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include/BS_thread_pool.hpp)
     target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
@@ -217,6 +207,16 @@ if(SCATTERSHOT_HEADLESS AND TARGET SpaghettifyHeadless)
   if(EXISTS /usr/include/SDL2)
     target_include_directories(SpaghettifyHeadless PRIVATE /usr/include/SDL2)
   endif()
+  foreach(_toml
+    ${CMAKE_BINARY_DIR}/_deps/tomlplusplus-src/include
+    ${CMAKE_BINARY_DIR}/_deps/tomlplusplus-src
+    ${CMAKE_BINARY_DIR}/../_deps/tomlplusplus-src/include
+    ${CMAKE_BINARY_DIR}/../../_deps/tomlplusplus-src/include
+  )
+    if(EXISTS ${_toml}/toml++/toml.hpp)
+      target_include_directories(SpaghettifyHeadless PRIVATE ${_toml})
+    endif()
+  endforeach()
 endif()
 
 # fmt's consteval format-string checking fails to compile under newer
