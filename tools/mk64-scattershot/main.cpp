@@ -4,6 +4,7 @@
 #include <atomic>
 #include "Scattershot.h"
 #include "ReplayWriter.h"
+#include "ThreadState.h"
 int main(int argc, char** argv){
  std::string course="mario_raceway"; int timeSec=5, threads=4, depth=30; std::string out="out";
  for(int i=1;i<argc;i++){ std::string a=argv[i]; if(a=="--course" && i+1<argc) course=argv[++i]; else if(a=="--time" && i+1<argc) timeSec=atoi(argv[++i]); else if(a=="--threads" && i+1<argc) threads=atoi(argv[++i]); else if(a=="--out" && i+1<argc) out=argv[++i]; else if(a=="--help"){ std::cout<<"mk64-scattershot --course mario_raceway --time 60 --threads 8 --out out\n"; return 0; } }

@@ -142,9 +142,13 @@ target_include_directories(
 target_compile_definitions(${PROJECT_NAME} PRIVATE YAML_CPP_STATIC_DEFINE)
 
 if(SCATTERSHOT_HEADLESS)
-  add_library(SpaghettifyHeadless STATIC ${ALL_FILES})
+  set(HEADLESS_FILES ${ALL_FILES})
+  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/port/.*")
+  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/debug/.*")
+  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/audio/.*")
+  add_library(SpaghettifyHeadless STATIC ${HEADLESS_FILES})
   target_compile_definitions(SpaghettifyHeadless PRIVATE HEADLESS=1 NO_RENDER=1 NO_AUDIO=1 YAML_CPP_STATIC_DEFINE)
-  target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/assets ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/assets ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/include ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/include/libultraship)
 endif()
 
 if(SPAGHETTIKART_IOS)
