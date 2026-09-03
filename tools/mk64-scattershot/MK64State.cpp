@@ -53,7 +53,7 @@ void kart_tick(struct MK64Input inp){
 }
 void headless_init_track(const char* track){
     memset(gPlayers, 0, sizeof(Player) * 8);
-    memset(gControllers, 0, sizeof(gControllers));
+    memset(gControllers, 0, sizeof(struct Controller) * 8);
     // real player: EXISTS+HUMAN so update_player() runs physics (not early return)
     gPlayers[0].type = PLAYER_EXISTS | PLAYER_HUMAN;
     gPlayers[0].pos[0]=0; gPlayers[0].pos[1]=0; gPlayers[0].pos[2]=0;
