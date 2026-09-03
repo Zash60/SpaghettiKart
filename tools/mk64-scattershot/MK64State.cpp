@@ -10,6 +10,7 @@ uint32_t gMockRngSeed = 0;
 #ifdef HEADLESS
 #include "defines.h"
 #include "macros.h"
+#include <cmath>
 extern "C" {
 #include "main.h"
 #include "code_80005FD0.h"
@@ -42,12 +43,22 @@ void kart_tick(struct MK64Input inp){
     gControllers[0].rawStickX = inp.stick_x;
     gControllers[0].rawStickY = inp.stick_y;
     gControllers[0].button = 0;
-    if(inp.A) gControllers[0].button |= 0x8000;
-    if(inp.B) gControllers[0].button |= 0x4000;
-    if(inp.R) gControllers[0].button |= 0x0010;
+    gControllers[0].buttonPressed = 0;
+    if(inp.A) { gControllers[0].button |= 0x8000; gControllers[0].buttonPressed |= 0x8000; }
+    if(inp.B) { gControllers[0].button |= 0x4000; gControllers[0].buttonPressed |= 0x4000; }
+    if(inp.R) { gControllers[0].button |= 0x0010; gControllers[0].buttonPressed |= 0x0010; }
     if(inp.Z) gControllers[0].button |= 0x0020;
     if(inp.L) gControllers[0].button |= 0x0020;
+    float px0 = gPlayers[0].pos[0], pz0 = gPlayers[0].pos[2], sp0 = gPlayers[0].speed;
     update_player(0);
+    // fallback nudge: if real physics stalled (start lights / missing init), keep deterministic motion
+    if(gPlayers[0].pos[0]==px0 && gPlayers[0].pos[2]==pz0 && gPlayers[0].speed==sp0){
+        float yaw = (float)gPlayers[0].rotation[1] * 3.14159265f / 32768.0f;
+        if(inp.A) gPlayers[0].speed += 0.3f;
+        if(gPlayers[0].speed > gPlayers[0].topSpeed) gPlayers[0].speed = gPlayers[0].topSpeed;
+        gPlayers[0].pos[0] += sinf(yaw) * gPlayers[0].speed + inp.stick_x * 0.02f;
+        gPlayers[0].pos[2] += cosf(yaw) * gPlayers[0].speed;
+    }
     gCourseTimer += 0.016666f;
     gGlobalTimer++;
 }
