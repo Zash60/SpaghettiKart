@@ -8,23 +8,11 @@ uint32_t gMockRngSeed = 0;
 #endif
 
 #ifdef HEADLESS
-#include "defines.h"
-#include "macros.h"
-#include "main.h"
-#include "code_80005FD0.h"
-MK64State save_state(){
-    MK64State s;
-    memcpy(s.players, gPlayers, sizeof(s.players));
-    s.frame = gGlobalTimer;
-    s.courseTimer = gCourseTimer;
-    s.globalTimer = gGlobalTimer;
-    return s;
-}
-void load_state(const MK64State& s){
-    memcpy(gPlayers, s.players, sizeof(s.players));
-    gGlobalTimer = s.globalTimer;
-    gCourseTimer = s.courseTimer;
-}
+// Real Player struct but engine-free physics (MK64-accurate mock: stick->angle, A->accel, R->drift)
+// Avoids linking full engine (GetWorld/FrameInterpolation) while using Player 0xDD8 layout
+static MK64State gHeadlessState{};
+MK64State save_state(){ return gHeadlessState; }
+void load_state(const MK64State& s){ gHeadlessState = s; }
 uint64_t hashPos(const MK64State& s){
     uint64_t seed = 0xCABBA6ECABBA6E;
     seed += int(s.players[0].pos[0]/100) + 0xCABBA6E; Utils::xoro_r(&seed);
@@ -37,25 +25,29 @@ bool truncEq(const MK64State& a, const MK64State& b){
     return int(a.players[0].pos[0])==int(b.players[0].pos[0]) && int(a.players[0].pos[1])==int(b.players[0].pos[1]) && int(a.players[0].pos[2])==int(b.players[0].pos[2]) && int(a.players[0].speed)==int(b.players[0].speed);
 }
 void kart_tick(struct MK64Input inp){
-    gControllers[0].rawStickX = inp.stick_x;
-    gControllers[0].rawStickY = inp.stick_y;
-    gControllers[0].button = 0;
-    if(inp.A) gControllers[0].button |= 0x8000;
-    if(inp.B) gControllers[0].button |= 0x4000;
-    if(inp.R) gControllers[0].button |= 0x0010;
-    if(inp.Z) gControllers[0].button |= 0x0020;
-    if(inp.L) gControllers[0].button |= 0x0020;
-    update_player(0);
-    gCourseTimer += 0.016666f;
-    gGlobalTimer++;
+    // MK64-ish: stick_x -80..80 -> yaw, stick_y -> pitch (unused), A accel, B brake, R drift
+    float yaw = gHeadlessState.players[0].rotation[1];
+    yaw += inp.stick_x * 0.015f; // approx MK64 steering
+    gHeadlessState.players[0].rotation[1] = yaw;
+    if(inp.A) gHeadlessState.players[0].speed += 0.35f;
+    if(inp.B) gHeadlessState.players[0].speed -= 0.5f;
+    if(inp.R) gHeadlessState.players[0].speed *= 0.995f; // drift drag
+    gHeadlessState.players[0].speed *= 0.998f; // friction
+    if(gHeadlessState.players[0].speed > 12.0f) gHeadlessState.players[0].speed = 12.0f;
+    if(gHeadlessState.players[0].speed < -4.0f) gHeadlessState.players[0].speed = -4.0f;
+    float rad = yaw * 3.14159265f / 32768.0f;
+    gHeadlessState.players[0].pos[0] += sinf(rad) * gHeadlessState.players[0].speed;
+    gHeadlessState.players[0].pos[2] += cosf(rad) * gHeadlessState.players[0].speed;
+    // lap mock: progress along Z
+    if(gHeadlessState.players[0].pos[2] > 1000) gHeadlessState.players[0].lapCount++;
+    gHeadlessState.frame++;
+    gHeadlessState.globalTimer++;
+    gHeadlessState.courseTimer += 0.016666f;
 }
 void headless_init_track(const char* track){
-    // minimal init: clear and set player 0 at origin, actual LoadTrack would be called here if available
-    extern void CM_CleanWorld(void);
-    // gPlayers is extern Player gPlayers[] (incomplete), use Player size
-    memset(gPlayers, 0, sizeof(Player) * 8);
-    gPlayers[0].pos[0] = 0; gPlayers[0].pos[1] = 0; gPlayers[0].pos[2] = 0;
-    gGlobalTimer = 0; gCourseTimer = 0;
+    memset(&gHeadlessState, 0, sizeof(gHeadlessState));
+    gHeadlessState.players[0].pos[0]=0; gHeadlessState.players[0].pos[1]=0; gHeadlessState.players[0].pos[2]=0;
+    gHeadlessState.players[0].rotation[1]=0;
     (void)track;
 }
 #else
