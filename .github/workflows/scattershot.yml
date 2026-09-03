@@ -60,10 +60,9 @@ jobs:
       - name: Run scattershot (real physics)
         run: |
           docker run --rm -v "${{ github.workspace }}:/project" spaghettikart-builder:latest bash -c "
-            apt-get update -y && apt-get install -y gdb >/dev/null 2>&1 || true; \
             mkdir -p /project/out && \
-            gdb -batch -ex run -ex bt --args /project/build-headless/tools/mk64-scattershot/mk64-scattershot --course mario_raceway --time 10 --threads 2 --out /project/out; \
-            ls -lh /project/out/; cat /project/out/best.json || true
+            /project/build-headless/tools/mk64-scattershot/mk64-scattershot --course mario_raceway --time ${{ inputs.time || '60' }} --threads ${{ inputs.threads || '8' }} --out /project/out && \
+            ls -lh /project/out/ && cat /project/out/best.json
           "
 
       - name: Fix permissions
