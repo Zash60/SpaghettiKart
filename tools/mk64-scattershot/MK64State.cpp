@@ -63,6 +63,8 @@ void headless_init_track(const char* track){
     static TrackPathPoint dummyPath[8] = {};
     for(int i=0;i<8;i++){ dummyPath[i].x=0; dummyPath[i].y=0; dummyPath[i].z=(s16)(i*100); dummyPath[i].trackSectionId=0; }
     for(int i=0;i<4;i++){ gTrackPaths[i]=dummyPath; gPathCountByPathIndex[i]=8; }
+    static s16 dummyRot[8] = {};
+    for(int i=0;i<4;i++){ gPathExpectedRotation[i]=dummyRot; }
     gSelectedPathCount=8;
     for(int i=0;i<12;i++){ gNearestPathPointByPlayerId[i]=0; gPathIndexByPlayerId[i]=0; }
     gPlayerPathIndex=0;
