@@ -38,12 +38,24 @@ extern "C" void Scattershot_OverrideController(void){
 }
 extern "C" int Scattershot_IsActive(void){ return gScattershotActive ? 1 : 0; }
 extern "C" void Scattershot_Stop(void){ gScattershotActive=false; }
+static bool TryLoadScattershotReplay(void){
+ std::string appDir;
+ try { appDir = Ship::Context::GetInstance()->GetAppDirectoryPath(); } catch (...) {}
+ if (!appDir.empty()){
+  SPDLOG_INFO("Scattershot: trying {}/best.mkr", appDir);
+  if (LoadScattershotReplay(appDir + "/best.mkr")){ SPDLOG_INFO("Scattershot: loaded, frames={}", (int)gScattershotReplay.size()); return true; }
+ }
+ SPDLOG_INFO("Scattershot: trying /sdcard/Download/best.mkr");
+ if (LoadScattershotReplay("/sdcard/Download/best.mkr")){ SPDLOG_INFO("Scattershot: loaded, frames={}", (int)gScattershotReplay.size()); return true; }
+ SPDLOG_INFO("Scattershot: trying out/best.mkr");
+ if (LoadScattershotReplay("out/best.mkr")){ SPDLOG_INFO("Scattershot: loaded fallback, frames={}", (int)gScattershotReplay.size()); return true; }
+ SPDLOG_WARN("Scattershot: no replay file found (put best.mkr next to config.yml)");
+ return false;
+}
+bool Scattershot_TryLoad(void){ return TryLoadScattershotReplay(); }
 extern "C" void Scattershot_AutoLoad(void){
- SPDLOG_INFO("Scattershot AutoLoad: trying /sdcard/Download/best.mkr (autoload cvar={})", CVarGetInteger("gScattershotAutoLoad", 1));
+ SPDLOG_INFO("Scattershot AutoLoad: go! (autoload cvar={})", CVarGetInteger("gScattershotAutoLoad", 1));
  if (CVarGetInteger("gScattershotAutoLoad", 1) == 0) return;
  if (gScattershotActive) return;
- if (LoadScattershotReplay("/sdcard/Download/best.mkr")){ SPDLOG_INFO("Scattershot AutoLoad: loaded, frames={}", (int)gScattershotReplay.size()); return; }
- SPDLOG_WARN("Scattershot AutoLoad: /sdcard/Download/best.mkr NOT readable, trying out/best.mkr");
- if (LoadScattershotReplay("out/best.mkr")){ SPDLOG_INFO("Scattershot AutoLoad: loaded fallback, frames={}", (int)gScattershotReplay.size()); return; }
- SPDLOG_WARN("Scattershot AutoLoad: no replay file found");
+ TryLoadScattershotReplay();
 }

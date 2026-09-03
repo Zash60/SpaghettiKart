@@ -574,9 +574,8 @@ void PortMenu::AddDevTools() {
     AddSidebarEntry("Developer", "Scattershot", 1);
     AddWidget(path, "Load Replay", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) {
-            bool ok = LoadScattershotReplay("/sdcard/Download/best.mkr");
-            if (!ok) ok = LoadScattershotReplay("out/best.mkr");
-            SPDLOG_INFO(ok ? "Scattershot replay loaded" : "Scattershot replay NOT found (put best.mkr in /sdcard/Download)");
+            bool ok = Scattershot_TryLoad();
+            SPDLOG_INFO(ok ? "Scattershot replay loaded" : "Scattershot replay NOT found");
         })
         .Options(ButtonOptions().Tooltip("Loads best.mkr (scattershot TAS) and takes over P1 inputs during the race"));
     AddWidget(path, "Stop Replay", WIDGET_BUTTON)
