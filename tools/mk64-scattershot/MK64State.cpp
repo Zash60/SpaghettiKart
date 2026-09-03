@@ -53,8 +53,19 @@ void kart_tick(struct MK64Input inp){
 }
 void headless_init_track(const char* track){
     memset(gPlayers, 0, sizeof(Player) * 8);
+    memset(gControllers, 0, sizeof(gControllers));
+    // real player: EXISTS+HUMAN so update_player() runs physics (not early return)
+    gPlayers[0].type = PLAYER_EXISTS | PLAYER_HUMAN;
     gPlayers[0].pos[0]=0; gPlayers[0].pos[1]=0; gPlayers[0].pos[2]=0;
+    gPlayers[0].speed=0;
     gGlobalTimer=0; gCourseTimer=0;
+    // dummy straight track path so update_player_path() doesn't deref null
+    static TrackPathPoint dummyPath[8] = {};
+    for(int i=0;i<8;i++){ dummyPath[i].x=0; dummyPath[i].y=0; dummyPath[i].z=(s16)(i*100); dummyPath[i].trackSectionId=0; }
+    for(int i=0;i<4;i++){ gTrackPaths[i]=dummyPath; gPathCountByPathIndex[i]=8; }
+    gSelectedPathCount=8;
+    for(int i=0;i<12;i++){ gNearestPathPointByPlayerId[i]=0; gPathIndexByPlayerId[i]=0; }
+    gPlayerPathIndex=0;
     (void)track;
 }
 #else
