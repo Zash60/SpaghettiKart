@@ -40,13 +40,26 @@ extern "C" {
 #include "common_structs.h"
 #include "audio/external.h"
 #include "menus.h"
+#include "main.h"
+#include "camera.h"
 struct Actor;
 
-// --- globals from menus.c (excluded) ---
+// --- globals from main.c/menus.c (excluded from whitelist) ---
 s8 gPlayerCount = 1;
 s8 gCharacterSelections[8] = {0, 1, 2, 3, 4, 5, 6, 7};
 s8 gDemoUseController = 0;
 bool gTrackMapInit = false;
+Player gPlayers[8] = {};
+Player* gPlayerOne = &gPlayers[0];
+struct Controller gControllers[8] = {};
+struct Controller* gControllerOne = &gControllers[0];
+s32 gGlobalTimer = 0;
+f32 gCourseTimer = 0.0f;
+s32 gActiveScreenMode = 0;
+u16 gDemoMode = 0;
+Camera* camera1 = nullptr;
+s32 gModeSelection = 0;
+s32 gCCSelection = 1;
 
 // --- CM_* (src/port/Game.cpp, excluded) ---
 Properties* CM_GetProps() { return HeadlessProps(); }

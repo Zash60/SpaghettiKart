@@ -147,6 +147,9 @@ if(SCATTERSHOT_HEADLESS)
     RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     "src/code_80005FD0.c"
     "src/code_800029B0.c"
+    "src/player_controller.c"
+    "src/racing/math_util.c"
+    "src/racing/collision.c"
     "src/buffers/*.c"
     "src/data/*.c"
     "src/math_util_2.c"
