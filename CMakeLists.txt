@@ -142,17 +142,18 @@ target_include_directories(
 target_compile_definitions(${PROJECT_NAME} PRIVATE YAML_CPP_STATIC_DEFINE)
 
 if(SCATTERSHOT_HEADLESS)
-  set(HEADLESS_FILES ${ALL_FILES})
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/port/.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/engine/.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/enhancements/.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/debug/.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/audio/.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/menu_items\\.c$")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/menu.*\\.c$")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX ".*menu.*")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "courses/harbour/ghostship_model\\.c$")
-  list(FILTER HEADLESS_FILES EXCLUDE REGEX "assets/.*")
+  # whitelist minimal for real update_player(): only physics core, no render/audio/menu/engine/port
+  file(GLOB HEADLESS_FILES CONFIGURE_DEPENDS
+    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    "src/code_80005FD0.c"
+    "src/code_800029B0.c"
+    "src/buffers/*.c"
+    "src/data/*.c"
+    "src/math_util_2.c"
+    "src/course_metadata.c"
+    "src/gbiMacro.c"
+    "src/os/gu*.c"
+  )
   add_library(SpaghettifyHeadless STATIC ${HEADLESS_FILES})
   target_compile_definitions(SpaghettifyHeadless PRIVATE HEADLESS=1 NO_RENDER=1 NO_AUDIO=1 YAML_CPP_STATIC_DEFINE F3DEX_GBI=1 VERSION_US=1 _LANGUAGE_C NDEBUG NON_MATCHING=1 NON_EQUIVALENT=1 AVOID_UB=1 ENABLE_RUMBLE=1 _USE_MATH_DEFINES SPAGHETTI_VERSION="${PROJECT_VERSION}")
   target_compile_options(SpaghettifyHeadless PRIVATE -Wno-narrowing -Wno-error=narrowing -fpermissive -Wno-error)
