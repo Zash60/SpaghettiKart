@@ -56,8 +56,13 @@ void headless_init_track(const char* track){
     memset(gControllers, 0, sizeof(struct Controller) * 8);
     // real player: EXISTS+HUMAN so update_player() runs physics (not early return)
     gPlayers[0].type = PLAYER_EXISTS | PLAYER_HUMAN;
+    gPlayers[0].characterId = 0; // Mario
     gPlayers[0].pos[0]=0; gPlayers[0].pos[1]=0; gPlayers[0].pos[2]=0;
     gPlayers[0].speed=0;
+    // topSpeed from kart_attributes (spawn_players.c excluded): CC_150 Mario ~= 12
+    extern float* gTopSpeedTable[];
+    gPlayers[0].topSpeed = gTopSpeedTable[2][0];
+    if(gPlayers[0].topSpeed < 1.0f) gPlayers[0].topSpeed = 12.0f;
     gGlobalTimer=0; gCourseTimer=0;
     // dummy straight track path so update_player_path() doesn't deref null
     static TrackPathPoint dummyPath[8] = {};
