@@ -13,6 +13,7 @@
 #include "engine/tracks/Track.h"
 #include "engine/tracks/KalimariDesert.h"
 #include "engine/tracks/ToadsTurnpike.h"
+#include "port/ScattershotReplay.h"
 
 #ifdef __SWITCH__
 #include <ship/port/switch/SwitchImpl.h>
@@ -568,6 +569,21 @@ void PortMenu::AddDevTools() {
         .Options(ButtonOptions().Tooltip(
             "Enables the console window, allowing you to input commands. Type help for some examples"))
         .WindowName("Console");
+
+    path = { "Developer", "Scattershot", SECTION_COLUMN_1 };
+    AddSidebarEntry("Developer", "Scattershot", 1);
+    AddWidget(path, "Load Replay", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) {
+            bool ok = LoadScattershotReplay("/sdcard/Download/best.mkr");
+            if (!ok) ok = LoadScattershotReplay("out/best.mkr");
+            SPDLOG_INFO(ok ? "Scattershot replay loaded" : "Scattershot replay NOT found (put best.mkr in /sdcard/Download)");
+        })
+        .Options(ButtonOptions().Tooltip("Loads best.mkr (scattershot TAS) and takes over P1 inputs during the race"));
+    AddWidget(path, "Stop Replay", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) {
+            Scattershot_Stop();
+        })
+        .Options(ButtonOptions().Tooltip("Gives control back to the player"));
 }
 
 void PortMenu::AddSceneVisibility() {

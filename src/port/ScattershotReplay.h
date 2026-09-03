@@ -8,3 +8,12 @@ void DrawScattershotHud();
 extern std::vector<MK64Input> gScattershotReplay;
 extern int gScattershotReplayIndex;
 extern bool gScattershotActive;
+#ifdef __cplusplus
+extern "C" {
+#endif
+void Scattershot_OverrideController(void);
+int Scattershot_IsActive(void);
+void Scattershot_Stop(void);
+#ifdef __cplusplus
+}
+#endif
