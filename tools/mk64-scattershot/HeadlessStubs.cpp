@@ -42,7 +42,12 @@ extern "C" {
 #include "menus.h"
 #include "main.h"
 #include "camera.h"
+#include "racing/actors_extended.h"
+#include "effects.h"
+#include "render_player.h"
 struct Actor;
+struct FakeItemBox;
+struct BananaBunchParent;
 
 // --- globals from main.c/menus.c (excluded from whitelist) ---
 s8 gPlayerCount = 1;
@@ -51,15 +56,26 @@ s8 gDemoUseController = 0;
 bool gTrackMapInit = false;
 Player gPlayers[8] = {};
 Player* gPlayerOne = &gPlayers[0];
+Player* gPlayerTwo = &gPlayers[1];
+Player* gPlayerThree = &gPlayers[2];
+Player* gPlayerFour = &gPlayers[3];
+Player* gPlayerFive = &gPlayers[4];
+Player* gPlayerSix = &gPlayers[5];
+Player* gPlayerSeven = &gPlayers[6];
+Player* gPlayerEight = &gPlayers[7];
 struct Controller gControllers[8] = {};
 struct Controller* gControllerOne = &gControllers[0];
+struct Controller* gControllerThree = &gControllers[2];
 s32 gGlobalTimer = 0;
 f32 gCourseTimer = 0.0f;
 s32 gActiveScreenMode = 0;
 u16 gDemoMode = 0;
 Camera* camera1 = nullptr;
+Camera* camera2 = nullptr;
 s32 gModeSelection = 0;
 s32 gCCSelection = 1;
+bool gIsPlayerTripleAButtonCombo[8] = {};
+CollisionGrid gCollisionGrid[8] = {};
 
 // --- CM_* (src/port/Game.cpp, excluded) ---
 Properties* CM_GetProps() { return HeadlessProps(); }
@@ -127,6 +143,20 @@ int OTRGetRectDimensionFromLeftEdge(int v) { (void)v; return 0; }
 void CM_DrawObjects(s32 cameraId) { (void)cameraId; }
 void CM_DrawParticles(s32 cameraId) { (void)cameraId; }
 void CM_DrawTrackObjects(s32 cameraId) { (void)cameraId; }
+
+// --- items (src/racing/actors_extended, excluded deps) ---
+s32 use_green_shell_item(Player* p) { (void)p; return 0; }
+s32 use_red_shell_item(Player* p) { (void)p; return 0; }
+s32 use_blue_shell_item(Player* p) { (void)p; return 0; }
+s32 use_triple_shell_item(Player* p, s16 a) { (void)p;(void)a; return 0; }
+s32 use_banana_item(Player* p) { (void)p; return 0; }
+s32 use_banana_bunch_item(Player* p) { (void)p; return 0; }
+void use_thunder_item(Player* p) { (void)p; }
+s32 use_fake_itembox_item(Player* p) { (void)p; return 0; }
+void drop_banana_in_banana_bunch(struct BananaBunchParent* p) { (void)p; }
+void func_802A1064(struct FakeItemBox* p) { (void)p; }
+void func_8008F104(Player* p, s8 a) { (void)p;(void)a; }
+void move_s32_towards(s32* a, s32 b, f32 c) { (void)a;(void)b;(void)c; if(a) *a=b; }
 
 } // extern "C"
 
