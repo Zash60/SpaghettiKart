@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(mk64-scattershot
   main.cpp
   MK64State.cpp
+  HeadlessStubs.cpp
   Utils.cpp
   InputGen.cpp
   Evaluator.cpp
