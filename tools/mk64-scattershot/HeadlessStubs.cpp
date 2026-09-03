@@ -38,15 +38,17 @@ static Properties* HeadlessProps() {
 }
 
 extern "C" {
+#include "common_structs.h"
+struct Actor;
 
-// --- CM_* used by code_80005FD0.c ---
+// --- CM_* used by code_80005FD0.c (signatures must match src/port/Game.h) ---
 Properties* CM_GetProps() { return HeadlessProps(); }
-void CM_VehicleCollision(int32_t playerId, void* player) { (void)playerId; (void)player; }
+void CM_VehicleCollision(s32 playerId, Player* player) { (void)playerId; (void)player; }
 void CM_CrossingTrigger() {}
-void CM_AICrossingBehaviour(int32_t playerId) { (void)playerId; }
+void CM_AICrossingBehaviour(s32 playerId) { (void)playerId; }
 void CM_ClearVehicles() {}
-int CM_FindActorIndex(void* actor) { (void)actor; return -1; }
-void* CM_GetActor(int index) { (void)index; return nullptr; }
+size_t CM_FindActorIndex(struct Actor* actor) { (void)actor; return (size_t)-1; }
+struct Actor* CM_GetActor(size_t index) { (void)index; return nullptr; }
 void CM_TickBombKarts() {}
 void CM_VehiclesTick() {}
 
