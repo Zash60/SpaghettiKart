@@ -10,7 +10,12 @@ int main(int argc, char** argv){
  for(int i=1;i<argc;i++){ std::string a=argv[i]; if(a=="--course" && i+1<argc) course=argv[++i]; else if(a=="--time" && i+1<argc) timeSec=atoi(argv[++i]); else if(a=="--threads" && i+1<argc) threads=atoi(argv[++i]); else if(a=="--out" && i+1<argc) out=argv[++i]; else if(a=="--help"){ std::cout<<"mk64-scattershot --course mario_raceway --time 60 --threads 8 --out out\n"; return 0; } }
  std::cout<<"mk64-scattershot course="<<course<<" time="<<timeSec<<" threads="<<threads<<" depth="<<depth<<"\n";
  GlobalState g(1<<16);
- MK64State s0{}; s0.karts[0].posX=0; s0.karts[0].checkpoint=0;
+ MK64State s0{};
+#ifdef HEADLESS
+ s0.players[0].pos[0]=0; s0.players[0].pos[1]=0; s0.players[0].pos[2]=0;
+#else
+ s0.karts[0].posX=0; s0.karts[0].checkpoint=0;
+#endif
  Segment* root=new Segment{nullptr,0,0,{},s0,1e9f};
  g.blocks.push_back({hashPos(s0), root});
  g.hashTab[g.findNewHashInx(hashPos(s0))] = 0;

@@ -10,7 +10,6 @@ uint32_t gMockRngSeed = 0;
 #ifdef HEADLESS
 #include "main.h"
 #include "code_80005FD0.h"
-#include <ultra64/controller.h>
 extern "C" {
  extern s32 gGlobalTimer;
  extern float gCourseTimer;

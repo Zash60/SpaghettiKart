@@ -34,8 +34,10 @@ void load_state(const MK64State& s);
 uint64_t hashPos(const MK64State& s);
 bool truncEq(const MK64State& a, const MK64State& b);
 
-// mock globals for headless test (real impl will use gKartStates etc)
+// mock globals for non-headless test (real impl will use gPlayers etc)
+#ifndef HEADLESS
 extern KartSnapshot gMockKartStates[8];
 extern uint32_t gMockFrame;
 extern uint32_t gMockRngSeed;
+#endif
 void kart_tick(struct MK64Input inp); // forward decl for test
