@@ -151,6 +151,13 @@ if(SCATTERSHOT_HEADLESS)
   add_library(SpaghettifyHeadless STATIC ${HEADLESS_FILES})
   target_compile_definitions(SpaghettifyHeadless PRIVATE HEADLESS=1 NO_RENDER=1 NO_AUDIO=1 YAML_CPP_STATIC_DEFINE)
   target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/assets ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/include ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/include/libultraship)
+  # threadpool for libultraship ResourceManager
+  if(EXISTS ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
+    target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
+  endif()
+  if(TARGET threadpool)
+    add_dependencies(SpaghettifyHeadless threadpool)
+  endif()
 endif()
 
 if(SPAGHETTIKART_IOS)
@@ -178,6 +185,15 @@ endif()
 include(cmake/dependencies/common.cmake)
 
 include(cmake/dependencies/FindLib.cmake)
+
+# headless needs threadpool headers from libultraship fetch
+if(SCATTERSHOT_HEADLESS AND TARGET SpaghettifyHeadless)
+  if(EXISTS ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include/BS_thread_pool.hpp)
+    target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
+  elseif(EXISTS ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
+    target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
+  endif()
+endif()
 
 # fmt's consteval format-string checking fails to compile under newer
 # AppleClang (Xcode 16+) with the spdlog/fmt versions in use (both vcpkg's on
