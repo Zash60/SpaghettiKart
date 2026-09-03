@@ -1,6 +1,7 @@
 #include "ScattershotReplay.h"
 #include "main.h"
 #include <libultraship.h>
+#include <spdlog/spdlog.h>
 #include <fstream>
 #include <cstdint>
 struct MK64InputLocal { int8_t stick_x, stick_y; bool A,B,Z,R,L; };
@@ -38,8 +39,11 @@ extern "C" void Scattershot_OverrideController(void){
 extern "C" int Scattershot_IsActive(void){ return gScattershotActive ? 1 : 0; }
 extern "C" void Scattershot_Stop(void){ gScattershotActive=false; }
 extern "C" void Scattershot_AutoLoad(void){
+ SPDLOG_INFO("Scattershot AutoLoad: trying /sdcard/Download/best.mkr (autoload cvar={})", CVarGetInteger("gScattershotAutoLoad", 1));
  if (CVarGetInteger("gScattershotAutoLoad", 1) == 0) return;
  if (gScattershotActive) return;
- if (LoadScattershotReplay("/sdcard/Download/best.mkr")) return;
- LoadScattershotReplay("out/best.mkr");
+ if (LoadScattershotReplay("/sdcard/Download/best.mkr")){ SPDLOG_INFO("Scattershot AutoLoad: loaded, frames={}", (int)gScattershotReplay.size()); return; }
+ SPDLOG_WARN("Scattershot AutoLoad: /sdcard/Download/best.mkr NOT readable, trying out/best.mkr");
+ if (LoadScattershotReplay("out/best.mkr")){ SPDLOG_INFO("Scattershot AutoLoad: loaded fallback, frames={}", (int)gScattershotReplay.size()); return; }
+ SPDLOG_WARN("Scattershot AutoLoad: no replay file found");
 }
