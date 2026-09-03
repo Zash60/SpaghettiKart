@@ -143,6 +143,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE YAML_CPP_STATIC_DEFINE)
 
 if(SCATTERSHOT_HEADLESS)
   set(HEADLESS_FILES ${ALL_FILES})
+  list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/port/.*")
   list(FILTER HEADLESS_FILES EXCLUDE REGEX "src/engine/mods/.*")
   list(FILTER HEADLESS_FILES EXCLUDE REGEX "courses/harbour/ghostship_model\\.c$")
   list(FILTER HEADLESS_FILES EXCLUDE REGEX "assets/.*")
