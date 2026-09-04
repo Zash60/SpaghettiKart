@@ -34,8 +34,12 @@ std::vector<MK64Input> readMkr(const std::string& path){
  for(uint32_t i=0;i<frames;i++){ int8_t sx,sy; uint8_t btn; f.read((char*)&sx,1); f.read((char*)&sy,1); f.read((char*)&btn,1); out.push_back({sx,sy, bool(btn&1), bool(btn&2), bool(btn&8), bool(btn&4), bool(btn&16)}); }
  return out;
 }
-void writeJson(const GlobalState& g, int totalFrames, const std::string& path){
+void writeJson(const GlobalState& g, int totalFrames, const std::string& path, int characterId, float topSpeed, const std::string& course){
  std::ofstream f(path);
  int bestFrames = g.bestBlock ? g.bestBlock->blockLength() : totalFrames;
- f << "{\"frames\":"<<bestFrames<<",\"totalBlocks\":"<<g.blocks.size()<<",\"bestExists\":"<<(g.bestBlock? "true":"false")<<"}";
+ const char* names[8] = {"Mario","Luigi","Yoshi","Toad","DK","Wario","Peach","Bowser"};
+ const char* cname = (characterId>=0 && characterId<8) ? names[characterId] : "Unknown";
+ f << "{\"frames\":"<<bestFrames<<",\"totalBlocks\":"<<g.blocks.size()<<",\"bestExists\":"<<(g.bestBlock? "true":"false")
+   <<",\"course\":\""<<course<<"\",\"character\":\""<<cname<<"\",\"characterId\":"<<characterId
+   <<",\"cc\":150,\"topSpeed\":"<<topSpeed<<"}";
 }

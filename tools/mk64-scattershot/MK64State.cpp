@@ -10,11 +10,15 @@ uint32_t gMockRngSeed = 0;
 #ifdef HEADLESS
 #include "defines.h"
 #include "macros.h"
+#include "kart_attributes.h"
 #include <cmath>
 extern "C" {
 #include "main.h"
 #include "code_80005FD0.h"
 }
+// Scattershot corre só de Yoshi (characterId 2)
+#define HEADLESS_CHARACTER YOSHI
+#define HEADLESS_CC CC_150
 static uint32_t gHeadlessLights = 0;
 MK64State save_state(){
     MK64State s;
@@ -83,13 +87,18 @@ void headless_init_track(const char* track){
     // real player: EXISTS+HUMAN+START_SEQUENCE so update_player() runs the real
     // countdown code (rev/boost/false-start) until lights hit 0, like Lakitu's Go
     gPlayers[0].type = PLAYER_EXISTS | PLAYER_HUMAN | PLAYER_START_SEQUENCE;
-    gPlayers[0].characterId = 0; // Mario
+    // Yoshi only, full kart stats like spawn_players (150cc versus)
+    gPlayers[0].characterId = HEADLESS_CHARACTER;
+    gPlayers[0].kartFriction = gKartFrictionTable[HEADLESS_CHARACTER];
+    gPlayers[0].boundingBoxSize = gKartBoundingBoxSizeTable[HEADLESS_CHARACTER];
+    gPlayers[0].kartGravity = gKartGravityTable[HEADLESS_CHARACTER];
+    gPlayers[0].unk_084 = D_800E2400[HEADLESS_CC][HEADLESS_CHARACTER];
+    gPlayers[0].unk_088 = D_800E24B4[HEADLESS_CC][HEADLESS_CHARACTER];
+    gPlayers[0].unk_210 = D_800E2568[HEADLESS_CC][HEADLESS_CHARACTER];
+    gPlayers[0].topSpeed = gTopSpeedTable[HEADLESS_CC][HEADLESS_CHARACTER];
+    if(gPlayers[0].topSpeed < 1.0f) gPlayers[0].topSpeed = 12.0f;
     gPlayers[0].pos[0]=0; gPlayers[0].pos[1]=0; gPlayers[0].pos[2]=0;
     gPlayers[0].speed=0;
-    // topSpeed from kart_attributes (spawn_players.c excluded): CC_150 Mario ~= 12
-    extern float* gTopSpeedTable[];
-    gPlayers[0].topSpeed = gTopSpeedTable[2][0];
-    if(gPlayers[0].topSpeed < 1.0f) gPlayers[0].topSpeed = 12.0f;
     gGlobalTimer=0; gCourseTimer=0;
     gHeadlessLights = HEADLESS_START_LIGHTS;
     // dummy straight track path so update_player_path() doesn't deref null

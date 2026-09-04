@@ -73,7 +73,7 @@ u16 gDemoMode = 0;
 Camera* camera1 = nullptr;
 Camera* camera2 = nullptr;
 s32 gModeSelection = 0;
-s32 gCCSelection = 1;
+s32 gCCSelection = 2; // CC_150
 bool gIsPlayerTripleAButtonCombo[8] = {};
 CollisionGrid gCollisionGrid[8] = {};
 

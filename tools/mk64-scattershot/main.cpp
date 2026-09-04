@@ -46,7 +46,13 @@ int main(int argc, char** argv){
  // ensure out dir
  system(("mkdir -p "+out).c_str());
  writeMkr(replay, mkr);
- writeJson(g, replay.size(), js);
+#ifdef HEADLESS
+ extern float* gTopSpeedTable[];
+ float yoshiTop = gTopSpeedTable[2][2];
+ writeJson(g, replay.size(), js, 2, yoshiTop, course);
+#else
+ writeJson(g, replay.size(), js, 0, 0.0f, course);
+#endif
  std::cout<<"wrote "<<mkr<<" frames="<<replay.size()<<" blocks="<<g.blocks.size()<<"\n";
  return 0;
 }
