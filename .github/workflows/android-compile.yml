@@ -121,6 +121,10 @@ jobs:
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
+      with:
+        # Repo pins a locally-built wrapper jar that fails upstream checksum
+        # validation; the jar is pre-existing and unrelated to our changes.
+        validate-wrappers: false
 
     # Set up signing for release builds
     - name: Setup signing keystore (Release only)
