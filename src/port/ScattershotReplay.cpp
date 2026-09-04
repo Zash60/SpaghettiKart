@@ -3,6 +3,7 @@
 #include <libultraship.h>
 #include <spdlog/spdlog.h>
 #include <fstream>
+#include <cstdio>
 #include <cstdint>
 struct MK64InputLocal { int8_t stick_x, stick_y; bool A,B,Z,R,L; };
 std::vector<MK64Input> gScattershotReplay;
@@ -38,6 +39,30 @@ extern "C" void Scattershot_OverrideController(void){
 }
 extern "C" int Scattershot_IsActive(void){ return gScattershotActive ? 1 : 0; }
 extern "C" void Scattershot_Stop(void){ gScattershotActive=false; }
+// Dumps the runtime collision mesh (Mario Raceway) for the headless bruteforcer.
+// Format LE: u32 count, then per tri: 9x s16 xyz, u16 flags, u16 surface, 3x u16 vtxflags.
+#include "racing/collision.h"
+extern "C" int Scattershot_DumpCollision(const char* path){
+ extern CollisionTriangle* gCollisionMesh;
+ extern unsigned short gCollisionMeshCount;
+ FILE* f = fopen(path, "wb");
+ if(!f) return -1;
+ uint32_t n = gCollisionMeshCount;
+ fwrite(&n, 4, 1, f);
+ for(uint32_t i = 0; i < n; i++){
+  CollisionTriangle* t = &gCollisionMesh[i];
+  int16_t v[9] = { t->vtx1->v.ob[0], t->vtx1->v.ob[1], t->vtx1->v.ob[2],
+                   t->vtx2->v.ob[0], t->vtx2->v.ob[1], t->vtx2->v.ob[2],
+                   t->vtx3->v.ob[0], t->vtx3->v.ob[1], t->vtx3->v.ob[2] };
+  fwrite(v, 2, 9, f);
+  fwrite(&t->flags, 2, 1, f);
+  fwrite(&t->surfaceType, 2, 1, f);
+  uint16_t vf[3] = { t->vtx1->v.flag, t->vtx2->v.flag, t->vtx3->v.flag };
+  fwrite(vf, 2, 3, f);
+ }
+ fclose(f);
+ return (int)n;
+}
 static bool TryLoadScattershotReplay(void){
  std::string appDir;
  try { appDir = Ship::Context::GetRawInstance()->GetAppDirectoryPath(); } catch (...) {}

@@ -90,7 +90,8 @@ Camera* camera2 = nullptr;
 s32 gModeSelection = 0;
 s32 gCCSelection = 2; // CC_150
 bool gIsPlayerTripleAButtonCombo[8] = {};
-CollisionGrid gCollisionGrid[8] = {};
+CollisionGrid gCollisionGrid[1024] = {}; // main.c sizing: 32x32 grid
+static uint16_t gHeadlessCollisionIndices[16384] = {};
 
 // --- CM_* (src/port/Game.cpp, excluded) ---
 Properties* CM_GetProps() { return HeadlessProps(); }
