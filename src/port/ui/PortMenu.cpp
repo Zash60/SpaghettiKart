@@ -585,11 +585,9 @@ void PortMenu::AddDevTools() {
         .Options(ButtonOptions().Tooltip("Gives control back to the player"));
     AddWidget(path, "Dump Collision", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) {
-            std::string dir;
-            try { dir = Ship::Context::GetRawInstance()->GetAppDirectoryPath(); } catch (...) {}
-            std::string p = (dir.empty() ? std::string("/sdcard/Download") : dir) + "/collision_dump.bin";
+            std::string p = Ship::Context::GetRawInstance()->GetAppDirectoryPath() + "/collision_dump.bin";
             int n = Scattershot_DumpCollision(p.c_str());
-            SPDLOG_INFO(n >= 0 ? "Scattershot collision dumped: {} tris -> {}" : "Scattershot collision dump FAILED", n, p);
+            SPDLOG_INFO("Scattershot collision dump: {} tris -> {}", n, p);
         })
         .Options(ButtonOptions().Tooltip("Dumps Mario Raceway collision mesh for the headless bruteforcer"));
     AddWidget(path, "Auto-load on Go", WIDGET_CVAR_CHECKBOX)
