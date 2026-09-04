@@ -23,11 +23,6 @@ void Bf_PlayBaseStart(void) {
     sPlayIdx = 0;
 }
 
-void Bf_PlayBaseStart(void) {
-    sPlaying = true;
-    sPlayIdx = 0;
-}
-
 void Bf_PlayBaseStop(void) {
     sPlaying = false;
 }
