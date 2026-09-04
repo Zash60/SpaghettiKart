@@ -8,6 +8,11 @@
 #include <spdlog/spdlog.h>
 #include <libultraship.h>
 
+extern "C" {
+#include "replays.h"
+#include <defines.h>
+}
+
 static bool sSearching = false;
 static int sWindow = 30;
 static int sMaxIters = 200;
@@ -159,4 +164,73 @@ int Bf_LoadResult(const char* path) {
     Bf_SetBase(v.data(), (int)v.size());
     sBestTicks = ticks;
     return 0;
+}
+
+// Session-only BF ghost slot (RAM, no pak): the game's ghost buffers are
+// never touched, so the player ghost can be restored at any time.
+static uint32_t sBfGhost[0x1000];
+
+static uint32_t BfEncodeEntry(const BfInput& in, unsigned run) {
+    int sx = in.stickX;
+    int sy = in.stickY;
+    if (sx < -128) {
+        sx = -128;
+    }
+    if (sx > 127) {
+        sx = 127;
+    }
+    if (sy < -128) {
+        sy = -128;
+    }
+    if (sy > 127) {
+        sy = 127;
+    }
+    uint32_t e = ((uint32_t)(sx & 0xFF)) | ((uint32_t)((sy & 0xFF) << 8)) | ((uint32_t)(run << 16));
+    if (in.button & A_BUTTON) {
+        e |= REPLAY_A_BUTTON;
+    }
+    if (in.button & B_BUTTON) {
+        e |= REPLAY_B_BUTTON;
+    }
+    if (in.button & Z_TRIG) {
+        e |= REPLAY_Z_TRIG;
+    }
+    if (in.button & R_TRIG) {
+        e |= REPLAY_R_TRIG;
+    }
+    return e;
+}
+
+int Bf_ExportGhost(void) {
+    int n = Bf_BaseLen();
+    if (n <= 0) {
+        SPDLOG_ERROR("BF no base to export (record or load a result first)");
+        return -1;
+    }
+    const BfInput* d = Bf_BaseData();
+    int w = 0;
+    int i = 0;
+    while (i < n) {
+        // Counter stores runLen-1 (matches save_player_replay RLE).
+        unsigned run = 0;
+        while (i + (int)run + 1 < n && run + 1 < 0x100 && d[i + run + 1].stickX == d[i].stickX &&
+               d[i + run + 1].stickY == d[i].stickY && d[i + run + 1].button == d[i].button) {
+            run++;
+        }
+        if (w >= 0x1000) {
+            SPDLOG_ERROR("BF base too long for ghost slot ({} RLE entries)", w);
+            return -1;
+        }
+        sBfGhost[w++] = BfEncodeEntry(d[i], run);
+        i += run + 1;
+    }
+    sPlayerGhostReplay = sBfGhost;
+    reset_player_ghost_state();
+    SPDLOG_INFO("BF exported {} frames as session ghost ({} entries)", n, w);
+    return 0;
+}
+
+void Bf_RestorePlayerGhost(void) {
+    load_player_ghost();
+    SPDLOG_INFO("BF restored player ghost");
 }

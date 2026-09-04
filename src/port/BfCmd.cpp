@@ -73,6 +73,7 @@ void Bf_RegisterCommands(void) {
         "bf_loadresult",
         { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a, std::string* o) -> int32_t {
               (void)c;
+              (void)a;
               int rc = Bf_LoadResult(Bf_ResultPath());
               if (o) {
                   *o = rc == 0 ? "BF result loaded as base" : "BF result NOT found";
@@ -81,4 +82,17 @@ void Bf_RegisterCommands(void) {
               return rc;
           },
           "Load result.txt as the BF base", {} });
+    console->AddCommand("bf_exportghost",
+                        { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a,
+                             std::string* o) -> int32_t {
+                              (void)c;
+                              (void)a;
+                              int rc = Bf_ExportGhost();
+                              if (o) {
+                                  *o = rc == 0 ? "BF base exported as session ghost"
+                                               : "BF export failed";
+                              }
+                              return rc;
+                          },
+                          "Export BF base as the time-trial session ghost", {} });
 }

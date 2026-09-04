@@ -105,6 +105,14 @@ void load_player_ghost(void) {
     sPlayerGhostFramesRemaining = (s32) *sPlayerGhostReplay & REPLAY_FRAME_COUNTER;
     sPlayerGhostReplayIdx = 0;
 }
+
+// Re-sync ghost playback state after sPlayerGhostReplay was repointed
+// (e.g. BF export). Does not touch the game's ghost buffers.
+void reset_player_ghost_state(void) {
+    sPlayerGhostButtonsPrev = 0;
+    sPlayerGhostReplayIdx = 0;
+    sPlayerGhostFramesRemaining = (s32) *sPlayerGhostReplay & REPLAY_FRAME_COUNTER;
+}
 /**
  * Activates staff ghost if time trial lap time is low enough
  *

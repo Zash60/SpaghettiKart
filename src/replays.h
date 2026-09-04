@@ -8,6 +8,7 @@ void func_80005B18(void);
 void load_course_ghost(void);
 void load_post_time_trial_replay(void);
 void load_player_ghost(void);
+void reset_player_ghost_state(void);
 void set_staff_ghost(void);
 s32 func_800051C4(void);
 void func_8000522C(void);

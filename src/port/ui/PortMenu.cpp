@@ -587,6 +587,12 @@ void PortMenu::AddDevTools() {
     AddWidget(path, "Stop Search", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) { Bf_SearchStop(); })
         .Options(ButtonOptions().Tooltip("Stops search and restores pre-BF state"));
+    AddWidget(path, "Export as Ghost", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { Bf_ExportGhost(); })
+        .Options(ButtonOptions().Tooltip("Exports BF base as the time-trial session ghost (RAM only)"));
+    AddWidget(path, "Restore Player Ghost", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { Bf_RestorePlayerGhost(); })
+        .Options(ButtonOptions().Tooltip("Switches the ghost back to the player's saved ghost"));
 }
 
 void PortMenu::AddSceneVisibility() {
