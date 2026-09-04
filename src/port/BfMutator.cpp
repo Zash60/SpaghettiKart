@@ -29,7 +29,7 @@ const char* Bf_ResultPath(void) {
 }
 
 static void CacheResultPath(void) {
-    std::string p = Ship::Context::GetInstance()->GetAppDirectoryPath() + "/result.txt";
+    std::string p = Ship::Context::GetRawInstance()->GetAppDirectoryPath() + "/result.txt";
     snprintf(sPath, sizeof(sPath), "%s", p.c_str());
 }
 

@@ -24,7 +24,7 @@ static int32_t BfRecordCmd(std::shared_ptr<Ship::Console> console, std::vector<s
 }
 
 void Bf_RegisterCommands(void) {
-    auto console = Ship::Context::GetInstance()->GetConsole();
+    auto console = Ship::Context::GetRawInstance()->GetConsole();
     if (console->HasCommand("bf_record")) {
         return;
     }
