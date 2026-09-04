@@ -2,6 +2,8 @@
 #include "UIWidgets.h"
 #include "port/Game.h"
 #include "port/BfCmd.h"
+#include "port/BfBase.h"
+#include "port/BfMutator.h"
 #include "ship/window/gui/GuiMenuBar.h"
 #include "ship/window/gui/GuiElement.h"
 #include <variant>
@@ -570,6 +572,21 @@ void PortMenu::AddDevTools() {
         .Options(ButtonOptions().Tooltip(
             "Enables the console window, allowing you to input commands. Type help for some examples"))
         .WindowName("Console");
+
+    path = { "Developer", "Bruteforce", SECTION_COLUMN_1 };
+    AddSidebarEntry("Developer", "Bruteforce", 1);
+    AddWidget(path, "Record Base", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { Bf_RecordStart(); })
+        .Options(ButtonOptions().Tooltip("Starts recording P1 inputs as the BF base (drive a finished race)"));
+    AddWidget(path, "Stop Record", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { Bf_RecordStop(); })
+        .Options(ButtonOptions().Tooltip("Stops recording; base is ready"));
+    AddWidget(path, "Start Search", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { Bf_SearchStart(30, 200); })
+        .Options(ButtonOptions().Tooltip("Hill-climb finish time from the recorded base, saves result.txt"));
+    AddWidget(path, "Stop Search", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { Bf_SearchStop(); })
+        .Options(ButtonOptions().Tooltip("Stops search and restores pre-BF state"));
 }
 
 void PortMenu::AddSceneVisibility() {

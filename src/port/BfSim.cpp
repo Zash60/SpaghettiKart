@@ -1,6 +1,6 @@
 #include "port/BfSim.h"
+#include "port/BfMutator.h"
 #include "port/BfState.h"
-
 #include <macros.h>
 #include <defines.h>
 #include "common_structs.h"
@@ -65,6 +65,12 @@ void Bf_SimEnd(void) {
 }
 
 void Bf_OverrideTick(void) {
+    // Drive the search state machine at most once per frame.
+    static int sLastSearchFrame = -1;
+    if (gGlobalTimer != sLastSearchFrame) {
+        sLastSearchFrame = gGlobalTimer;
+        Bf_SearchFrame();
+    }
     if (sPlaying) {
         const BfInput* b = Bf_BaseData();
         int n = Bf_BaseLen();

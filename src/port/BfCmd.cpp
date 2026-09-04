@@ -1,6 +1,7 @@
 #include "port/BfCmd.h"
 #include "port/BfBase.h"
 #include "port/BfSim.h"
+#include "port/BfMutator.h"
 #include <libultraship.h>
 #include <spdlog/spdlog.h>
 
@@ -46,4 +47,38 @@ void Bf_RegisterCommands(void) {
               return 0;
           },
           "Replay recorded base inputs: bf_playbase 1|0", { { "on", Ship::ArgumentType::NUMBER } } });
+    console->AddCommand(
+        "bf_start",
+        { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a, std::string* o) -> int32_t {
+              (void)c;
+              (void)o;
+              int window = a.size() > 1 ? atoi(a[1].c_str()) : 30;
+              int iters = a.size() > 2 ? atoi(a[2].c_str()) : 200;
+              Bf_SearchStart(window, iters);
+              return 0;
+          },
+          "Start BF hill-climb: bf_start <windowFrames> <maxIters>",
+          { { "window", Ship::ArgumentType::NUMBER }, { "iters", Ship::ArgumentType::NUMBER } } });
+    console->AddCommand("bf_stop",
+                        { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a,
+                             std::string* o) -> int32_t {
+                              (void)c;
+                              (void)a;
+                              (void)o;
+                              Bf_SearchStop();
+                              return 0;
+                          },
+                          "Stop BF search and restore pre-BF state", {} });
+    console->AddCommand(
+        "bf_loadresult",
+        { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a, std::string* o) -> int32_t {
+              (void)c;
+              int rc = Bf_LoadResult(Bf_ResultPath());
+              if (o) {
+                  *o = rc == 0 ? "BF result loaded as base" : "BF result NOT found";
+              }
+              SPDLOG_INFO("{}", (rc == 0) ? "BF result loaded as base" : "BF result NOT found");
+              return rc;
+          },
+          "Load result.txt as the BF base", {} });
 }
