@@ -158,6 +158,42 @@ void* get_next_available_memory_addr(uintptr_t size){
     return p;
 }
 
+#include "MarioRacewayCollision.inc"
+
+// Real collision pools (mesh data dumped in-game from Mario Raceway)
+static Vtx gHeadlessVtx[1501*3] = {};
+static CollisionTriangle gHeadlessMesh[1536] = {};
+static bool gHeadlessColBuilt = false;
+
+extern "C" {
+#include "racing/collision.h"
+void add_collision_triangle(Vtx* vtx1, Vtx* vtx2, Vtx* vtx3, int8_t surfaceType, uint16_t sectionId);
+void Scattershot_BuildCollision(void){
+    if(gHeadlessColBuilt) return;
+    gHeadlessColBuilt = true;
+    extern CollisionTriangle* gCollisionMesh;
+    extern uint16_t* gCollisionIndices;
+    extern u16 gCollisionMeshCount;
+    // Rebuild the real mesh with the game's own function (identical semantics)
+    gCollisionMesh = gHeadlessMesh;
+    gCollisionMeshCount = 0;
+    for(int i = 0; i < kHeadlessColCount; i++){
+        Vtx* v1 = &gHeadlessVtx[i*3+0];
+        Vtx* v2 = &gHeadlessVtx[i*3+1];
+        Vtx* v3 = &gHeadlessVtx[i*3+2];
+        const int16_t* c = kHeadlessColVtx[i];
+        v1->v.ob[0]=c[0]; v1->v.ob[1]=c[1]; v1->v.ob[2]=c[2];
+        v2->v.ob[0]=c[3]; v2->v.ob[1]=c[4]; v2->v.ob[2]=c[5];
+        v3->v.ob[0]=c[6]; v3->v.ob[1]=c[7]; v3->v.ob[2]=c[8];
+        const uint16_t* m = kHeadlessColMeta[i];
+        v1->v.flag=m[2]; v2->v.flag=m[3]; v3->v.flag=m[4];
+        add_collision_triangle(v1, v2, v3, (int8_t)m[1], (uint16_t)(m[0] & 0xFF));
+    }
+    gCollisionIndices = gHeadlessCollisionIndices;
+    generate_collision_grid();
+}
+} // extern C
+
 // --- misc port/engine signatures from src/port/Game.h + include/mk64.h ---
 bool GameEngine_OTRSigCheck(const char* p) { (void)p; return false; }
 void FrameInterpolation_DontInterpolateCamera(void) {}
