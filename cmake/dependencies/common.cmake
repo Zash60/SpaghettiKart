@@ -1,18 +1,32 @@
 # =================== SSE2NEON ===================
 set(SSE2NEON_DIR ${CMAKE_BINARY_DIR}/_deps/sse2neon)
-file(
-  DOWNLOAD
-  "https://raw.githubusercontent.com/DLTcollab/sse2neon/refs/heads/master/sse2neon.h"
-  "${SSE2NEON_DIR}/sse2neon.h")
+# Only download when missing/empty: the fetch returns 0 bytes in sandboxed
+# networks, and re-configure must not clobber a good file.
+if(NOT EXISTS "${SSE2NEON_DIR}/sse2neon.h")
+  file(
+    DOWNLOAD
+    "https://raw.githubusercontent.com/DLTcollab/sse2neon/refs/heads/master/sse2neon.h"
+    "${SSE2NEON_DIR}/sse2neon.h")
+endif()
+file(SIZE "${SSE2NEON_DIR}/sse2neon.h" _sse2neon_size)
+if(_sse2neon_size EQUAL 0)
+  message(FATAL_ERROR "sse2neon.h is empty (network fetch failed); place a valid copy at ${SSE2NEON_DIR}/sse2neon.h and re-configure")
+endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SSE2NEON_DIR})
 
 # ================== SEMVER ===================
 set(SEMVER_DIR ${CMAKE_BINARY_DIR}/_deps/semver)
-file(
-  DOWNLOAD
-  "https://raw.githubusercontent.com/Neargye/semver/refs/tags/v1.0.0-rc/include/semver.hpp"
-  "${SEMVER_DIR}/semver.hpp")
+if(NOT EXISTS "${SEMVER_DIR}/semver.hpp")
+  file(
+    DOWNLOAD
+    "https://raw.githubusercontent.com/Neargye/semver/refs/tags/v1.0.0-rc/include/semver.hpp"
+    "${SEMVER_DIR}/semver.hpp")
+endif()
+file(SIZE "${SEMVER_DIR}/semver.hpp" _semver_size)
+if(_semver_size EQUAL 0)
+  message(FATAL_ERROR "semver.hpp is empty (network fetch failed); place a valid copy at ${SEMVER_DIR}/semver.hpp and re-configure")
+endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SEMVER_DIR})
 
