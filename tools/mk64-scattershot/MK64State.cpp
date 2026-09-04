@@ -109,6 +109,8 @@ void headless_init_track(const char* track){
     gSelectedPathCount=gPathCountByPathIndex[0];
     for(int i=0;i<12;i++){ gNearestPathPointByPlayerId[i]=0; gPathIndexByPlayerId[i]=0; }
     gPlayerPathIndex=0;
+    // Real race init (lap counters, path indices, AI state) like the game does
+    init_players();
     (void)track;
 }
 #else
