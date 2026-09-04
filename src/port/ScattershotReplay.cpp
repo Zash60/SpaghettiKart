@@ -40,7 +40,7 @@ extern "C" int Scattershot_IsActive(void){ return gScattershotActive ? 1 : 0; }
 extern "C" void Scattershot_Stop(void){ gScattershotActive=false; }
 static bool TryLoadScattershotReplay(void){
  std::string appDir;
- try { appDir = Ship::Context::GetInstance()->GetAppDirectoryPath(); } catch (...) {}
+ try { appDir = Ship::Context::GetRawInstance()->GetAppDirectoryPath(); } catch (...) {}
  if (!appDir.empty()){
   SPDLOG_INFO("Scattershot: trying {}/best.mkr", appDir);
   if (LoadScattershotReplay(appDir + "/best.mkr")){ SPDLOG_INFO("Scattershot: loaded, frames={}", (int)gScattershotReplay.size()); return true; }
