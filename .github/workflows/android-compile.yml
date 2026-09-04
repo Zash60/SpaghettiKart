@@ -156,10 +156,6 @@ jobs:
         cd android/
         ./gradlew assembleRelease
         mv app/build/outputs/apk/release/app-release.apk ../spaghettikart-release.apk
-      run: |
-        cd android/
-        ./gradlew assembleRelease
-        mv app/build/outputs/apk/release/app-release.apk ../spaghettikart-release.apk
       env:
         KEYSTORE_FILE: release.keystore
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
