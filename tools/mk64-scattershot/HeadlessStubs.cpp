@@ -6,6 +6,11 @@
 #ifdef HEADLESS
 
 #include "engine/tracks/Track.h"
+#include "MarioRacewayPath.inc"
+
+// Bump allocator for get_next_available_memory_addr (racing/memory.c excluded)
+static uint8_t gHeadlessPool[4*1024*1024] = {};
+static size_t gHeadlessPoolOff = 0;
 
 static Properties gHeadlessProps{};
 static bool gHeadlessPropsInit = false;
@@ -13,8 +18,18 @@ static bool gHeadlessPropsInit = false;
 static Properties* HeadlessProps() {
     if (!gHeadlessPropsInit) {
         memset(&gHeadlessProps, 0, sizeof(gHeadlessProps));
-        gHeadlessProps.AIMaximumSeparation = 0.0f;
-        gHeadlessProps.AIMinimumSeparation = 0.0f;
+        // Real Mario Raceway props (src/engine/tracks/MarioRaceway.cpp)
+        gHeadlessProps.AIMaximumSeparation = 50.0f;
+        gHeadlessProps.AIMinimumSeparation = 0.3f;
+        gHeadlessProps.PathSizes.unk0 = 499;
+        gHeadlessProps.PathSizes.unk2 = 1;
+        gHeadlessProps.PathSizes.unk4 = 1;
+        gHeadlessProps.PathSizes.unk6 = 1;
+        gHeadlessProps.PathSizes.unk8 = 1;
+        gHeadlessProps.PathTable2[0] = (TrackPathPoint*)gMarioRacewayPathSrc;
+        gHeadlessProps.PathTable2[1] = nullptr;
+        gHeadlessProps.PathTable2[2] = nullptr;
+        gHeadlessProps.PathTable2[3] = nullptr;
         gHeadlessProps.NormalTargetSpeed[0] = 8.0f;
         gHeadlessProps.NormalTargetSpeed[1] = 8.0f;
         gHeadlessProps.NormalTargetSpeed[2] = 8.0f;
@@ -134,6 +149,13 @@ void func_80092C80(void) {}
 void func_8009265C(void) {}
 void func_8009E5BC(void) {}
 void func_8009E088(s32 a, s32 b) { (void)a;(void)b; }
+
+void* get_next_available_memory_addr(uintptr_t size){
+    size = (size + 15) & ~(uintptr_t)15;
+    void* p = &gHeadlessPool[gHeadlessPoolOff];
+    gHeadlessPoolOff += size;
+    return p;
+}
 
 // --- misc port/engine signatures from src/port/Game.h + include/mk64.h ---
 bool GameEngine_OTRSigCheck(const char* p) { (void)p; return false; }

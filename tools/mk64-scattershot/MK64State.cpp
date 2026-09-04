@@ -73,11 +73,7 @@ void kart_tick(struct MK64Input& inp){
         gPlayers[0].pos[0] += sinf(yaw) * gPlayers[0].speed + inp.stick_x * 0.02f;
         gPlayers[0].pos[2] += cosf(yaw) * gPlayers[0].speed;
     }
-    // dummy lap line: every 1500 z units = 1 lap (real finish line needs real course data)
-    {
-        int laps = (int)(gPlayers[0].pos[2] / 1500.0f);
-        if(laps > gPlayers[0].lapCount) gPlayers[0].lapCount = (s16)laps;
-    }
+    // Real lap counting via update_player_completion on the real 499-pt track
     gCourseTimer += 0.016666f;
     gGlobalTimer++;
 }
@@ -101,17 +97,14 @@ void headless_init_track(const char* track){
     gPlayers[0].speed=0;
     gGlobalTimer=0; gCourseTimer=0;
     gHeadlessLights = HEADLESS_START_LIGHTS;
-    // dummy straight track path so update_player_path() doesn't deref null
-    static TrackPathPoint dummyPath[8] = {};
-    for(int i=0;i<8;i++){ dummyPath[i].x=0; dummyPath[i].y=0; dummyPath[i].z=(s16)(i*100); dummyPath[i].trackSectionId=0; }
-    for(int i=0;i<4;i++){ gTrackPaths[i]=dummyPath; gPathCountByPathIndex[i]=8; }
-    static s16 dummyRot[8] = {};
-    for(int i=0;i<4;i++){ gPathExpectedRotation[i]=dummyRot; }
-    static TrackPathPoint dummyLeft[8] = {};
-    static TrackPathPoint dummyRight[8] = {};
-    for(int i=0;i<8;i++){ dummyLeft[i].x=-50; dummyLeft[i].y=0; dummyLeft[i].z=(s16)(i*100); dummyRight[i].x=50; dummyRight[i].y=0; dummyRight[i].z=(s16)(i*100); }
-    for(int i=0;i<4;i++){ gTrackLeftPaths[i]=dummyLeft; gTrackRightPaths[i]=dummyRight; }
-    gSelectedPathCount=8;
+    // Real Mario Raceway: build path tables from the real 499-pt centerline
+    // using the game's own init (boundaries/sections/rotations/curves)
+    init_course_path_point();
+    // Spawn on the real start line (path point 0)
+    gPlayers[0].pos[0]=(float)gTrackPaths[0][0].x;
+    gPlayers[0].pos[1]=(float)gTrackPaths[0][0].y;
+    gPlayers[0].pos[2]=(float)gTrackPaths[0][0].z;
+    gSelectedPathCount=gPathCountByPathIndex[0];
     for(int i=0;i<12;i++){ gNearestPathPointByPlayerId[i]=0; gPathIndexByPlayerId[i]=0; }
     gPlayerPathIndex=0;
     (void)track;
