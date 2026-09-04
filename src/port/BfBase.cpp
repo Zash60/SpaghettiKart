@@ -26,6 +26,8 @@ void Bf_RecordTick(void) {
     in.stickX = gControllers[0].rawStickX;
     in.stickY = gControllers[0].rawStickY;
     in.button = gControllers[0].button;
+    in.buttonPressed = gControllers[0].buttonPressed;
+    in.buttonDepressed = gControllers[0].buttonDepressed;
     sBase.push_back(in);
 }
 

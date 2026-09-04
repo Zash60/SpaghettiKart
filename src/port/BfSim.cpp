@@ -31,7 +31,8 @@ static void Inject(const BfInput& in) {
     gControllers[0].rawStickX = in.stickX;
     gControllers[0].rawStickY = in.stickY;
     gControllers[0].button = in.button;
-    gControllers[0].buttonPressed = 0;
+    gControllers[0].buttonPressed = in.buttonPressed;
+    gControllers[0].buttonDepressed = in.buttonDepressed;
 }
 
 void Bf_SimBegin(const BfInput* cand, int n, int maxTicks) {

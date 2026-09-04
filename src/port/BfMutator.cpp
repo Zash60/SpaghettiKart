@@ -105,11 +105,20 @@ void Bf_SearchFrame(void) {
         return; // still simulating
     }
     Bf_SimEnd();
-    if (sBestTicks < 0 && r < 0) {
-        SPDLOG_ERROR("BF base does not finish the race; record a finished race first");
-        sSearching = false;
-        sPhase = 0;
-        return;
+    if (sBestTicks < 0) {
+        // Baseline measurement (first sim): must finish, else abort loudly.
+        if (r < 0) {
+            SPDLOG_ERROR("BF base does not finish the race; record a finished race first");
+            sSearching = false;
+            sPhase = 0;
+            return;
+        }
+        SPDLOG_INFO("BF baseline: {} ticks", r);
+    } else if (r < 0) {
+        static int sTimeouts = 0;
+        if (++sTimeouts % 25 == 1) {
+            SPDLOG_INFO("BF iter {}: candidate timeout ({} total)", sIter, sTimeouts);
+        }
     }
     if (r > 0 && (sBestTicks < 0 || r < sBestTicks)) {
         sBestTicks = r;
@@ -129,7 +138,8 @@ int Bf_SaveResult(const char* path) {
     }
     fprintf(f, "%d %d\n", sBestTicks, (int)sBest.size());
     for (size_t i = 0; i < sBest.size(); i++) {
-        fprintf(f, "%d %d %u\n", sBest[i].stickX, sBest[i].stickY, (unsigned)sBest[i].button);
+        fprintf(f, "%d %d %u %u %u\n", sBest[i].stickX, sBest[i].stickY, (unsigned)sBest[i].button,
+                (unsigned)sBest[i].buttonPressed, (unsigned)sBest[i].buttonDepressed);
     }
     fclose(f);
     return 0;
@@ -149,8 +159,10 @@ int Bf_LoadResult(const char* path) {
     v.reserve(n);
     for (int i = 0; i < n; i++) {
         int sx = 0, sy = 0;
-        unsigned b = 0;
-        if (fscanf(f, "%d %d %u\n", &sx, &sy, &b) != 3) {
+        unsigned b = 0, bp = 0, bd = 0;
+        // v2 has pressed/depressed; v1 (3 fields) reads bp=bd=0.
+        int got = fscanf(f, "%d %d %u %u %u\n", &sx, &sy, &b, &bp, &bd);
+        if (got < 3) {
             fclose(f);
             return -1;
         }
@@ -158,6 +170,8 @@ int Bf_LoadResult(const char* path) {
         in.stickX = (int16_t)sx;
         in.stickY = (int16_t)sy;
         in.button = (uint16_t)b;
+        in.buttonPressed = (uint16_t)bp;
+        in.buttonDepressed = (uint16_t)bd;
         v.push_back(in);
     }
     fclose(f);

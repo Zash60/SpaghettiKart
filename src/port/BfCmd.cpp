@@ -14,8 +14,17 @@ static int32_t BfRecordCmd(std::shared_ptr<Ship::Console> console, std::vector<s
     } else {
         Bf_RecordStop();
     }
-    char buf[128];
-    snprintf(buf, sizeof(buf), "BF base: %d frames%s", Bf_BaseLen(), on ? " (recording)" : " (ready)");
+    // Diagnostic: is the base real driving or all-neutral?
+    int nz = 0;
+    const BfInput* d = Bf_BaseData();
+    for (int i = 0; i < Bf_BaseLen(); i++) {
+        if (d[i].stickX != 0 || d[i].stickY != 0 || d[i].button != 0) {
+            nz++;
+        }
+    }
+    char buf[192];
+    snprintf(buf, sizeof(buf), "BF base: %d frames (%d non-neutral)%s", Bf_BaseLen(), nz,
+             on ? " (recording)" : " (ready)");
     if (output) {
         *output = buf;
     }

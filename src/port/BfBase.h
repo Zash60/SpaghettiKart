@@ -9,6 +9,8 @@ struct BfInput {
     int16_t stickX;
     int16_t stickY;
     uint16_t button;
+    uint16_t buttonPressed;
+    uint16_t buttonDepressed;
 };
 
 void Bf_RecordStart(void);
