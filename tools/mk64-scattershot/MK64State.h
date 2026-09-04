@@ -45,4 +45,11 @@ extern uint32_t gMockRngSeed;
 void kart_tick(struct MK64Input& inp); // neutralized in-place during start lights
 #ifdef HEADLESS
 void headless_init_track(const char* track);
+#ifdef __cplusplus
+extern "C" {
+#endif
+void Scattershot_BuildCollision(void);
+#ifdef __cplusplus
+}
+#endif
 #endif

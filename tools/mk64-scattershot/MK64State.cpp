@@ -98,7 +98,7 @@ void headless_init_track(const char* track){
     gGlobalTimer=0; gCourseTimer=0;
     gHeadlessLights = HEADLESS_START_LIGHTS;
     // Real Mario Raceway collision mesh (dumped in-game), then real path init
-    { extern "C" void Scattershot_BuildCollision(void); Scattershot_BuildCollision(); }
+    Scattershot_BuildCollision();
     // Real Mario Raceway: build path tables from the real 499-pt centerline
     // using the game's own init (boundaries/sections/rotations/curves)
     init_course_path_point();
