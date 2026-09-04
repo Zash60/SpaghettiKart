@@ -596,6 +596,12 @@ void PortMenu::AddDevTools() {
     AddWidget(path, "Reset All", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) { Bf_Reset(); })
         .Options(ButtonOptions().Tooltip("Stops everything and clears base, root and params"));
+    AddWidget(path, "Retry Race", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) {
+            extern void func_802903B0(void);
+            func_802903B0();
+        })
+        .Options(ButtonOptions().Tooltip("Restarts the current race (reset da fase)"));
     AddWidget(path, "Input Overlay", WIDGET_CVAR_CHECKBOX)
         .CVar("gBfOverlayEnabled")
         .Options(CheckboxOptions().Tooltip("Shows live/injected inputs on screen (TMInterface toggle_inputs)"));

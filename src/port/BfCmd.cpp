@@ -165,4 +165,16 @@ void Bf_RegisterCommands(void) {
                               return 0;
                           },
                           "Reset all BF state (stops, clears base)", {} });
+    console->AddCommand("bf_retry",
+                        { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a,
+                             std::string* o) -> int32_t {
+                              (void)c;
+                              (void)a;
+                              (void)o;
+                              extern void func_802903B0(void);
+                              func_802903B0();
+                              SPDLOG_INFO("BF retrying race");
+                              return 0;
+                          },
+                          "Retry the current race (same as pause-menu retry)", {} });
 }
