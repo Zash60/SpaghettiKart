@@ -621,6 +621,8 @@ void func_8028F474(void) {
     {
         extern void Bf_RecordTick(void);
         Bf_RecordTick();
+        extern void Bf_OverrideTick(void);
+        Bf_OverrideTick();
     }
     switch (gRaceState) {
         case RACE_IN_PROGRESS:

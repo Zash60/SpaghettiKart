@@ -1,5 +1,6 @@
 #include "port/BfCmd.h"
 #include "port/BfBase.h"
+#include "port/BfSim.h"
 #include <libultraship.h>
 #include <spdlog/spdlog.h>
 
@@ -29,4 +30,20 @@ void Bf_RegisterCommands(void) {
     console->AddCommand("bf_record",
                         { BfRecordCmd, "Record P1 inputs as BF base: bf_record 1|0",
                           { { "on", Ship::ArgumentType::NUMBER } } });
+    console->AddCommand(
+        "bf_playbase",
+        { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a, std::string* o) -> int32_t {
+              (void)c;
+              int on = a.size() > 1 ? atoi(a[1].c_str()) : 1;
+              if (on) {
+                  Bf_PlayBaseStart();
+              } else {
+                  Bf_PlayBaseStop();
+              }
+              if (o) {
+                  *o = on ? "BF playing base" : "BF stopped";
+              }
+              return 0;
+          },
+          "Replay recorded base inputs: bf_playbase 1|0", { { "on", Ship::ArgumentType::NUMBER } } });
 }
