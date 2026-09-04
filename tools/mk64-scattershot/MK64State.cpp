@@ -15,18 +15,21 @@ extern "C" {
 #include "main.h"
 #include "code_80005FD0.h"
 }
+static uint32_t gHeadlessLights = 0;
 MK64State save_state(){
     MK64State s;
     memcpy(s.players, gPlayers, sizeof(s.players));
     s.frame = gGlobalTimer;
     s.courseTimer = gCourseTimer;
     s.globalTimer = gGlobalTimer;
+    s.lights = gHeadlessLights;
     return s;
 }
 void load_state(const MK64State& s){
     memcpy(gPlayers, s.players, sizeof(s.players));
     gGlobalTimer = s.globalTimer;
     gCourseTimer = s.courseTimer;
+    gHeadlessLights = s.lights;
 }
 uint64_t hashPos(const MK64State& s){
     uint64_t seed = 0xCABBA6ECABBA6E;
@@ -39,7 +42,20 @@ uint64_t hashPos(const MK64State& s){
 bool truncEq(const MK64State& a, const MK64State& b){
     return int(a.players[0].pos[0])==int(b.players[0].pos[0]) && int(a.players[0].pos[1])==int(b.players[0].pos[1]) && int(a.players[0].pos[2])==int(b.players[0].pos[2]) && int(a.players[0].speed)==int(b.players[0].speed);
 }
-void kart_tick(struct MK64Input inp){
+void kart_tick(struct MK64Input& inp){
+    // 3-2-1-Go: kart locked, record neutral so replay holds still during countdown
+    if(gHeadlessLights > 0){
+        gHeadlessLights--;
+        inp.stick_x = 0; inp.stick_y = 0;
+        inp.A = inp.B = inp.Z = inp.R = inp.L = false;
+        gControllers[0].rawStickX = 0;
+        gControllers[0].rawStickY = 0;
+        gControllers[0].button = 0;
+        gControllers[0].buttonPressed = 0;
+        gCourseTimer += 0.016666f;
+        gGlobalTimer++;
+        return;
+    }
     gControllers[0].rawStickX = inp.stick_x;
     gControllers[0].rawStickY = inp.stick_y;
     gControllers[0].button = 0;
@@ -80,6 +96,7 @@ void headless_init_track(const char* track){
     gPlayers[0].topSpeed = gTopSpeedTable[2][0];
     if(gPlayers[0].topSpeed < 1.0f) gPlayers[0].topSpeed = 12.0f;
     gGlobalTimer=0; gCourseTimer=0;
+    gHeadlessLights = HEADLESS_START_LIGHTS;
     // dummy straight track path so update_player_path() doesn't deref null
     static TrackPathPoint dummyPath[8] = {};
     for(int i=0;i<8;i++){ dummyPath[i].x=0; dummyPath[i].y=0; dummyPath[i].z=(s16)(i*100); dummyPath[i].trackSectionId=0; }
@@ -119,7 +136,7 @@ uint64_t hashPos(const MK64State& s){
 bool truncEq(const MK64State& a, const MK64State& b){
     return a.karts[0].posX==b.karts[0].posX && a.karts[0].posY==b.karts[0].posY && a.karts[0].posZ==b.karts[0].posZ && a.karts[0].speed==b.karts[0].speed;
 }
-void kart_tick(struct MK64Input inp){
+void kart_tick(struct MK64Input& inp){
     gMockKartStates[0].posX += inp.stick_x;
     gMockKartStates[0].posZ += inp.stick_y;
     if(inp.A) gMockKartStates[0].speed += 1;

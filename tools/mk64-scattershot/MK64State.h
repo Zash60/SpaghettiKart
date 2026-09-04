@@ -6,12 +6,14 @@
 #ifdef HEADLESS
 // Real physics: use actual Player struct from game
 #include "common_structs.h"
+#define HEADLESS_START_LIGHTS 121 // measured 3-2-1-Go frames (STAGING timer=486 -> Go timer=607)
 struct MK64State {
     Player players[8];
     uint32_t frame = 0;
     uint32_t rngSeed = 0;
     float courseTimer = 0;
     s32 globalTimer = 0;
+    uint32_t lights = 0; // countdown frames remaining before Go
 };
 #else
 struct KartSnapshot {
@@ -40,7 +42,7 @@ extern KartSnapshot gMockKartStates[8];
 extern uint32_t gMockFrame;
 extern uint32_t gMockRngSeed;
 #endif
-void kart_tick(struct MK64Input inp); // forward decl for test
+void kart_tick(struct MK64Input& inp); // neutralized in-place during start lights
 #ifdef HEADLESS
 void headless_init_track(const char* track);
 #endif

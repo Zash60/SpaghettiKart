@@ -622,7 +622,7 @@ void update_race_position_data(void) {
 void func_8028F474(void) {
     s32 i;
 
-    if (gRaceState == RACE_IN_PROGRESS) {
+    {
         extern void Scattershot_OverrideController(void);
         Scattershot_OverrideController();
     }
@@ -932,6 +932,10 @@ void func_8028FCBC(void) {
                 D_800DC5B8 = 1;
                 CM_SpawnStarterLakitu(); // func_80078F64();
                 LUSLOG_DEBUG("Scattershot marker STAGING timer=%d", gGlobalTimer);
+                {
+                    extern void Scattershot_AutoLoad(void);
+                    Scattershot_AutoLoad();
+                }
                 if ((gModeSelection == TIME_TRIALS) && (bCourseGhostDisabled == 0)) {
                     phi_v0_4 = 0x1;
                     //! @warning this used to be < gCurrentCourseId
