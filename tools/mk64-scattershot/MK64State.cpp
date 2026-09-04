@@ -43,18 +43,11 @@ bool truncEq(const MK64State& a, const MK64State& b){
     return int(a.players[0].pos[0])==int(b.players[0].pos[0]) && int(a.players[0].pos[1])==int(b.players[0].pos[1]) && int(a.players[0].pos[2])==int(b.players[0].pos[2]) && int(a.players[0].speed)==int(b.players[0].speed);
 }
 void kart_tick(struct MK64Input& inp){
-    // 3-2-1-Go: kart locked, record neutral so replay holds still during countdown
+    // 3-2-1-Go: run the real start-sequence code with real inputs (rev/boost/false-start),
+    // exactly like the game; Lakitu's Go clears START_SEQUENCE when lights hit 0
     if(gHeadlessLights > 0){
         gHeadlessLights--;
-        inp.stick_x = 0; inp.stick_y = 0;
-        inp.A = inp.B = inp.Z = inp.R = inp.L = false;
-        gControllers[0].rawStickX = 0;
-        gControllers[0].rawStickY = 0;
-        gControllers[0].button = 0;
-        gControllers[0].buttonPressed = 0;
-        gCourseTimer += 0.016666f;
-        gGlobalTimer++;
-        return;
+        if(gHeadlessLights == 0) gPlayers[0].type &= ~PLAYER_START_SEQUENCE;
     }
     gControllers[0].rawStickX = inp.stick_x;
     gControllers[0].rawStickY = inp.stick_y;
@@ -67,8 +60,9 @@ void kart_tick(struct MK64Input& inp){
     if(inp.L) gControllers[0].button |= 0x0020;
     float px0 = gPlayers[0].pos[0], pz0 = gPlayers[0].pos[2], sp0 = gPlayers[0].speed;
     update_player(0);
-    // fallback nudge: if real physics stalled (start lights / missing init), keep deterministic motion
-    if(gPlayers[0].pos[0]==px0 && gPlayers[0].pos[2]==pz0 && gPlayers[0].speed==sp0){
+    // fallback nudge (post-Go only): if real physics stalled, keep deterministic motion.
+    // Never nudge during start lights: kart must hold still like the real countdown.
+    if(gHeadlessLights == 0 && gPlayers[0].pos[0]==px0 && gPlayers[0].pos[2]==pz0 && gPlayers[0].speed==sp0){
         float yaw = (float)gPlayers[0].rotation[1] * 3.14159265f / 32768.0f;
         if(inp.A) gPlayers[0].speed += 0.3f;
         if(gPlayers[0].speed > gPlayers[0].topSpeed) gPlayers[0].speed = gPlayers[0].topSpeed;
@@ -86,8 +80,9 @@ void kart_tick(struct MK64Input& inp){
 void headless_init_track(const char* track){
     memset(gPlayers, 0, sizeof(Player) * 8);
     memset(gControllers, 0, sizeof(struct Controller) * 8);
-    // real player: EXISTS+HUMAN so update_player() runs physics (not early return)
-    gPlayers[0].type = PLAYER_EXISTS | PLAYER_HUMAN;
+    // real player: EXISTS+HUMAN+START_SEQUENCE so update_player() runs the real
+    // countdown code (rev/boost/false-start) until lights hit 0, like Lakitu's Go
+    gPlayers[0].type = PLAYER_EXISTS | PLAYER_HUMAN | PLAYER_START_SEQUENCE;
     gPlayers[0].characterId = 0; // Mario
     gPlayers[0].pos[0]=0; gPlayers[0].pos[1]=0; gPlayers[0].pos[2]=0;
     gPlayers[0].speed=0;
