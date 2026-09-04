@@ -44,6 +44,10 @@ void Bf_SearchStart(int windowFrames, int maxIters) {
         SPDLOG_ERROR("BF no base recorded (bf_record 1, drive a finished race, bf_record 0)");
         return;
     }
+    if (Bf_RootSessionOk() != 0) {
+        SPDLOG_ERROR("BF race changed since recording; restart race, bf_record, then bf_start in the same race");
+        return;
+    }
     CacheResultPath();
     sBest.assign(Bf_BaseData(), Bf_BaseData() + n);
     // Measure the base first: run and count ticks to finish.

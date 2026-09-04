@@ -16,7 +16,12 @@ static int sSimTicks = 0;
 static int sSimMax = 0;
 static int sSimResult = 0; // 0 running, >0 finish, -1 timeout
 static int sSavedTickLogic = 2;
-static BfRaceState* sSimSaved = nullptr;
+static BfRaceState* sSimReturn = nullptr; // where the game was when sim began
+
+void Bf_PlayBaseStart(void) {
+    sPlaying = true;
+    sPlayIdx = 0;
+}
 
 void Bf_PlayBaseStart(void) {
     sPlaying = true;
@@ -36,11 +41,19 @@ static void Inject(const BfInput& in) {
 }
 
 void Bf_SimBegin(const BfInput* cand, int n, int maxTicks) {
-    if (sSimSaved) {
-        BfState_Free(sSimSaved);
+    BfRaceState* root = Bf_RootState();
+    if (!root) {
+        sSimResult = -1;
+        return;
     }
-    sSimSaved = BfState_Alloc();
-    BfState_Save(sSimSaved);
+    // Park the live state aside, run the candidate from the search root
+    // (record moment == base[0] by construction), restore on SimEnd.
+    if (sSimReturn) {
+        BfState_Free(sSimReturn);
+    }
+    sSimReturn = BfState_Alloc();
+    BfState_Save(sSimReturn);
+    BfState_Restore(root);
     sSavedTickLogic = gTickLogic;
     gTickLogic = 32;
     sCand = cand;
@@ -56,10 +69,10 @@ int Bf_SimPoll(void) {
 }
 
 void Bf_SimEnd(void) {
-    if (sSimSaved) {
-        BfState_Restore(sSimSaved);
-        BfState_Free(sSimSaved);
-        sSimSaved = nullptr;
+    if (sSimReturn) {
+        BfState_Restore(sSimReturn);
+        BfState_Free(sSimReturn);
+        sSimReturn = nullptr;
     }
     gTickLogic = sSavedTickLogic;
     sCand = nullptr;

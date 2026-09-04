@@ -104,4 +104,17 @@ void Bf_RegisterCommands(void) {
                               return rc;
                           },
                           "Export BF base as the time-trial session ghost", {} });
+    console->AddCommand("bf_reanchor",
+                        { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a,
+                             std::string* o) -> int32_t {
+                              (void)c;
+                              (void)a;
+                              Bf_Reanchor();
+                              if (o) {
+                                  *o = "BF search root re-anchored here";
+                              }
+                              SPDLOG_INFO("BF search root re-anchored here");
+                              return 0;
+                          },
+                          "Re-anchor search root at current state", {} });
 }
