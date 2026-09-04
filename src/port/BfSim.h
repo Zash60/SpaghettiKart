@@ -13,6 +13,9 @@ int Bf_SimPoll(void); // 0 = running, >0 = finish ticks, -1 = timeout/no finish
 void Bf_SimEnd(void); // state restore + gTickLogic back + disarm
 void Bf_PlayBaseStart(void);
 void Bf_PlayBaseStop(void);
+int Bf_IsPlaying(void);
+// Last injected (or 0 when idle) for the input overlay.
+int Bf_GetLastInput(BfInput* out);
 
 #ifdef __cplusplus
 }

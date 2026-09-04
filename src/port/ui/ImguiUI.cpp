@@ -7,6 +7,7 @@
 #include "Properties.h"
 #include "TrackProperties.h"
 #include "ContentBrowser.h"
+#include "BfOverlay.h"
 
 #include <spdlog/spdlog.h>
 #include <imgui.h>
@@ -39,6 +40,7 @@ std::shared_ptr<Ship::GuiWindow> mSceneExplorerWindow;
 std::shared_ptr<Ship::GuiWindow> mPropertiesWindow;
 std::shared_ptr<Ship::GuiWindow> mTrackPropertiesWindow;
 std::shared_ptr<Ship::GuiWindow> mContentBrowserWindow;
+std::shared_ptr<Ship::GuiWindow> mBfOverlayWindow;
 
 void SetupGuiElements() {
     auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
@@ -86,6 +88,10 @@ void SetupGuiElements() {
     mContentBrowserWindow =
         std::make_shared<TrackEditor::ContentBrowserWindow>("gEditorEnabled", "Content Browser");
     gui->AddGuiWindow(mContentBrowserWindow);
+
+    mBfOverlayWindow = std::make_shared<BF::OverlayWindow>("gBfOverlayEnabled", false, "BF Inputs",
+                                                          ImVec2(230, 170));
+    gui->AddGuiWindow(mBfOverlayWindow);
 }
 
 void Destroy() {
@@ -97,6 +103,7 @@ void Destroy() {
     mPropertiesWindow = nullptr;
     mTrackPropertiesWindow = nullptr;
     mContentBrowserWindow = nullptr;
+    mBfOverlayWindow = nullptr;
 }
 
 std::string GetWindowButtonText(const char* text, bool menuOpen) {

@@ -30,6 +30,10 @@ void Bf_RecordStop(void) {
     sRecording = false;
 }
 
+int Bf_IsRecording(void) {
+    return sRecording ? 1 : 0;
+}
+
 void Bf_RecordTick(void) {
     if (!sRecording) {
         return;
@@ -53,6 +57,10 @@ int Bf_BaseLen(void) {
 
 void Bf_SetBase(const BfInput* d, int n) {
     sBase.assign(d, d + n);
+}
+
+void Bf_ClearBase(void) {
+    sBase.clear();
 }
 
 BfRaceState* Bf_RootState(void) {

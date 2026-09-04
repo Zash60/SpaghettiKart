@@ -117,4 +117,52 @@ void Bf_RegisterCommands(void) {
                               return 0;
                           },
                           "Re-anchor search root at current state", {} });
+    console->AddCommand(
+        "bf_param",
+        { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a, std::string* o) -> int32_t {
+              (void)c;
+              if (a.size() < 3) {
+                  if (o) {
+                      *o = "usage: bf_param <prob|steer|minframe|maxframe|speed> <value>";
+                  }
+                  return 1;
+              }
+              int rc = Bf_ParamSet(a[1].c_str(), strtof(a[2].c_str(), nullptr));
+              if (o) {
+                  char b[96];
+                  snprintf(b, sizeof(b), rc == 0 ? "BF %s = %g" : "BF unknown param '%s'",
+                           a[1].c_str(), (double)Bf_ParamGet(a[1].c_str()));
+                  *o = b;
+              }
+              return rc;
+          },
+          "Set BF tuning param: bf_param <prob|steer|minframe|maxframe|speed> <value>",
+          { { "name", Ship::ArgumentType::TEXT }, { "value", Ship::ArgumentType::NUMBER } } });
+    console->AddCommand("bf_params",
+                        { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a,
+                             std::string* o) -> int32_t {
+                              (void)c;
+                              (void)a;
+                              char b[192];
+                              snprintf(b, sizeof(b), "BF prob=%g steer=%g minframe=%g maxframe=%g speed=%g",
+                                       (double)Bf_ParamGet("prob"), (double)Bf_ParamGet("steer"),
+                                       (double)Bf_ParamGet("minframe"), (double)Bf_ParamGet("maxframe"),
+                                       (double)Bf_ParamGet("speed"));
+                              if (o) {
+                                  *o = b;
+                              }
+                              SPDLOG_INFO("{}", b);
+                              return 0;
+                          },
+                          "List BF tuning params", {} });
+    console->AddCommand("bf_reset",
+                        { [](std::shared_ptr<Ship::Console> c, std::vector<std::string> a,
+                             std::string* o) -> int32_t {
+                              (void)c;
+                              (void)a;
+                              (void)o;
+                              Bf_Reset();
+                              return 0;
+                          },
+                          "Reset all BF state (stops, clears base)", {} });
 }

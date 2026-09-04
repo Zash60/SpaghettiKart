@@ -24,6 +24,88 @@ static int sPhase = 0; // 0 idle/needs new candidate, 1 sim running
 static std::vector<BfInput> sCand;
 static char sPath[512] = { 0 };
 
+// Tunables (TMInterface: no universal settings, tune per track).
+static float sProb = 0.3f;   // chance per input in window to mutate
+static int sSteerDiff = 8;   // max stick delta each direction
+static int sMinFrame = 0;    // mutation window clamp start
+static int sMaxFrame = -1;   // mutation window clamp end (-1 = base end)
+static int sSimSpeed = 32;   // ticks per rendered frame while simulating
+
+void Bf_ParamsReset(void) {
+    sProb = 0.3f;
+    sSteerDiff = 8;
+    sMinFrame = 0;
+    sMaxFrame = -1;
+    sSimSpeed = 32;
+}
+
+static int NameEq(const char* a, const char* b) {
+    while (*a && *b && *a == *b) {
+        a++;
+        b++;
+    }
+    return *a == *b;
+}
+
+int Bf_ParamSet(const char* name, float value) {
+    if (NameEq(name, "prob")) {
+        sProb = value < 0.05f ? 0.05f : (value > 1.0f ? 1.0f : value);
+        return 0;
+    }
+    if (NameEq(name, "steer")) {
+        sSteerDiff = (int)(value < 1 ? 1 : (value > 40 ? 40 : value));
+        return 0;
+    }
+    if (NameEq(name, "minframe")) {
+        sMinFrame = (int)(value < 0 ? 0 : value);
+        return 0;
+    }
+    if (NameEq(name, "maxframe")) {
+        sMaxFrame = (int)value;
+        return 0;
+    }
+    if (NameEq(name, "speed")) {
+        sSimSpeed = (int)(value < 1 ? 1 : (value > 64 ? 64 : value));
+        return 0;
+    }
+    return -1;
+}
+
+float Bf_ParamGet(const char* name) {
+    if (NameEq(name, "prob")) {
+        return sProb;
+    }
+    if (NameEq(name, "steer")) {
+        return (float)sSteerDiff;
+    }
+    if (NameEq(name, "minframe")) {
+        return (float)sMinFrame;
+    }
+    if (NameEq(name, "maxframe")) {
+        return (float)sMaxFrame;
+    }
+    if (NameEq(name, "speed")) {
+        return (float)sSimSpeed;
+    }
+    return -1.0f;
+}
+
+int Bf_SimSpeed(void) {
+    return sSimSpeed;
+}
+
+int Bf_IsSearching(void) {
+    return sSearching ? 1 : 0;
+}
+
+int Bf_SearchIter(void) {
+    return sIter;
+}
+
+int Bf_BestTicks(void) {
+    return sBestTicks;
+}
+
 static void CacheResultPath(void);
 
 const char* Bf_ResultPath(void) {
@@ -74,6 +156,20 @@ void Bf_SearchStop(void) {
     SPDLOG_INFO("BF search stopped");
 }
 
+void Bf_Reset(void) {
+    Bf_SearchStop();
+    Bf_PlayBaseStop();
+    Bf_RecordStop();
+    Bf_ClearBase();
+    sBest.clear();
+    sCand.clear();
+    sBestTicks = -1;
+    sIter = 0;
+    sPhase = 0;
+    Bf_ParamsReset();
+    SPDLOG_INFO("BF state reset (base cleared)");
+}
+
 void Bf_SearchFrame(void) {
     if (!sSearching) {
         return;
@@ -84,18 +180,32 @@ void Bf_SearchFrame(void) {
             Bf_SearchStop();
             return;
         }
-        // Mutate: copy the best and perturb window [f0, f0+sWindow).
+        // Mutate: copy the best and perturb window [f0, f0+sWindow),
+        // clamped to [sMinFrame, sMaxFrame]. Each input mutates with
+        // probability sProb by up to +-sSteerDiff stick.
         sCand = sBest;
         int n = (int)sCand.size();
-        int f0 = sIter == 0 ? 0 : (std::uniform_int_distribution<int>(0, n - 1)(sRng) % n);
-        if (f0 + sWindow > n) {
-            f0 = n - sWindow;
+        int lo = sMinFrame < 0 ? 0 : (sMinFrame >= n ? n - 1 : sMinFrame);
+        int hi = (sMaxFrame < 0 || sMaxFrame >= n) ? n : sMaxFrame + 1;
+        int span = hi - lo;
+        if (span < 1) {
+            lo = 0;
+            span = n;
         }
-        if (f0 < 0) {
-            f0 = 0;
+        int f0 = sIter == 0 ? lo : lo + (std::uniform_int_distribution<int>(0, span - 1)(sRng) % span);
+        if (f0 + sWindow > hi) {
+            f0 = hi - sWindow;
         }
-        for (int f = f0; f < f0 + sWindow && f < n; f++) {
-            sCand[f].stickX += (int16_t)std::uniform_int_distribution<int>(-8, 8)(sRng);
+        if (f0 < lo) {
+            f0 = lo;
+        }
+        std::uniform_real_distribution<float> probDist(0.0f, 1.0f);
+        for (int f = f0; f < f0 + sWindow && f < hi; f++) {
+            if (probDist(sRng) > sProb) {
+                continue;
+            }
+            sCand[f].stickX +=
+                (int16_t)std::uniform_int_distribution<int>(-sSteerDiff, sSteerDiff)(sRng);
             if (std::uniform_int_distribution<int>(0, 9)(sRng) == 0) {
                 sCand[f].button ^= A_BUTTON;
             }

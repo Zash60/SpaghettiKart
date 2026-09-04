@@ -17,6 +17,8 @@ static int sSimMax = 0;
 static int sSimResult = 0; // 0 running, >0 finish, -1 timeout
 static int sSavedTickLogic = 2;
 static BfRaceState* sSimReturn = nullptr; // where the game was when sim began
+static BfInput sLastInput = { 0, 0, 0, 0, 0 };
+static int sLastInputValid = 0;
 
 void Bf_PlayBaseStart(void) {
     sPlaying = true;
@@ -33,6 +35,20 @@ static void Inject(const BfInput& in) {
     gControllers[0].button = in.button;
     gControllers[0].buttonPressed = in.buttonPressed;
     gControllers[0].buttonDepressed = in.buttonDepressed;
+    sLastInput = in;
+    sLastInputValid = 1;
+}
+
+int Bf_IsPlaying(void) {
+    return sPlaying ? 1 : 0;
+}
+
+int Bf_GetLastInput(BfInput* out) {
+    if (!sLastInputValid || !out) {
+        return -1;
+    }
+    *out = sLastInput;
+    return 0;
 }
 
 void Bf_SimBegin(const BfInput* cand, int n, int maxTicks) {
@@ -50,7 +66,7 @@ void Bf_SimBegin(const BfInput* cand, int n, int maxTicks) {
     BfState_Save(sSimReturn);
     BfState_Restore(root);
     sSavedTickLogic = gTickLogic;
-    gTickLogic = 32;
+    gTickLogic = Bf_SimSpeed();
     sCand = cand;
     sCandLen = n;
     sCandIdx = 0;

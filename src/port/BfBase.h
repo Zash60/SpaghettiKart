@@ -18,9 +18,11 @@ struct BfRaceState;
 void Bf_RecordStart(void);
 void Bf_RecordStop(void);
 void Bf_RecordTick(void);
+int Bf_IsRecording(void);
 const BfInput* Bf_BaseData(void);
 int Bf_BaseLen(void);
 void Bf_SetBase(const BfInput* d, int n);
+void Bf_ClearBase(void);
 // Search-root snapshot taken at RecordStart: candidates always replay the
 // full base from THIS state (base[0] == record moment by construction).
 // Returns NULL when no valid root exists.

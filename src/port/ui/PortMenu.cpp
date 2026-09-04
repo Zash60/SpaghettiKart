@@ -593,6 +593,43 @@ void PortMenu::AddDevTools() {
     AddWidget(path, "Restore Player Ghost", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) { Bf_RestorePlayerGhost(); })
         .Options(ButtonOptions().Tooltip("Switches the ghost back to the player's saved ghost"));
+    AddWidget(path, "Reset All", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { Bf_Reset(); })
+        .Options(ButtonOptions().Tooltip("Stops everything and clears base, root and params"));
+    AddWidget(path, "Input Overlay", WIDGET_CVAR_CHECKBOX)
+        .CVar("gBfOverlayEnabled")
+        .Options(CheckboxOptions().Tooltip("Shows live/injected inputs on screen (TMInterface toggle_inputs)"));
+    static float sBfProbUi = 0.3f;
+    static int32_t sBfSteerUi = 8;
+    static int32_t sBfSpeedUi = 32;
+    static int32_t sBfMinFUi = 0;
+    static int32_t sBfMaxFUi = -1;
+    AddWidget(path, "Modify Prob", WIDGET_SLIDER_FLOAT)
+        .ValuePointer(&sBfProbUi)
+        .PreFunc([](WidgetInfo& info) { sBfProbUi = Bf_ParamGet("prob"); })
+        .Callback([](WidgetInfo& info) { Bf_ParamSet("prob", sBfProbUi); })
+        .Options(FloatSliderOptions().Min(0.05f).Max(1.0f).Step(0.05f).Format("%.2f").Tooltip(
+            "Chance per input in window to mutate (TMInterface bf_modify_prob)"));
+    AddWidget(path, "Steer Diff", WIDGET_SLIDER_INT)
+        .ValuePointer(&sBfSteerUi)
+        .PreFunc([](WidgetInfo& info) { sBfSteerUi = (int32_t)Bf_ParamGet("steer"); })
+        .Callback([](WidgetInfo& info) { Bf_ParamSet("steer", (float)sBfSteerUi); })
+        .Options(IntSliderOptions().Min(1).Max(40).Tooltip("Max stick change each direction"));
+    AddWidget(path, "Sim Speed", WIDGET_SLIDER_INT)
+        .ValuePointer(&sBfSpeedUi)
+        .PreFunc([](WidgetInfo& info) { sBfSpeedUi = (int32_t)Bf_ParamGet("speed"); })
+        .Callback([](WidgetInfo& info) { Bf_ParamSet("speed", (float)sBfSpeedUi); })
+        .Options(IntSliderOptions().Min(1).Max(64).Tooltip("Ticks per frame while simulating"));
+    AddWidget(path, "Min Frame", WIDGET_SLIDER_INT)
+        .ValuePointer(&sBfMinFUi)
+        .PreFunc([](WidgetInfo& info) { sBfMinFUi = (int32_t)Bf_ParamGet("minframe"); })
+        .Callback([](WidgetInfo& info) { Bf_ParamSet("minframe", (float)sBfMinFUi); })
+        .Options(IntSliderOptions().Min(0).Max(60000).Tooltip("Mutation window start (TMInterface bf_inputs_min_time)"));
+    AddWidget(path, "Max Frame", WIDGET_SLIDER_INT)
+        .ValuePointer(&sBfMaxFUi)
+        .PreFunc([](WidgetInfo& info) { sBfMaxFUi = (int32_t)Bf_ParamGet("maxframe"); })
+        .Callback([](WidgetInfo& info) { Bf_ParamSet("maxframe", (float)sBfMaxFUi); })
+        .Options(IntSliderOptions().Min(-1).Max(60000).Tooltip("Mutation window end, -1 = base end"));
 }
 
 void PortMenu::AddSceneVisibility() {
