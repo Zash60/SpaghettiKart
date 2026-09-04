@@ -1,6 +1,10 @@
 #pragma once
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct BfInput {
     int16_t stickX;
     int16_t stickY;
@@ -13,3 +17,7 @@ void Bf_RecordTick(void);
 const BfInput* Bf_BaseData(void);
 int Bf_BaseLen(void);
 void Bf_SetBase(const BfInput* d, int n);
+
+#ifdef __cplusplus
+}
+#endif
