@@ -16,6 +16,7 @@ int Scattershot_IsActive(void);
 void Scattershot_Stop(void);
 void Scattershot_AutoLoad(void);
 bool Scattershot_TryLoad(void);
+int Scattershot_DumpCollision(const char* path);
 #ifdef __cplusplus
 }
 #endif
