@@ -157,6 +157,10 @@ void* get_next_available_memory_addr(uintptr_t size){
     gHeadlessPoolOff += size;
     return p;
 }
+// Passthrough (engine/RaceManager.cpp excluded; headless never mirrors)
+void add_triangle_to_collision_mesh(Vtx* a, Vtx* b, Vtx* c, Vtx** o1, Vtx** o2, Vtx** o3){
+    *o1=a; *o2=b; *o3=c;
+}
 
 #include "MarioRacewayCollision.inc"
 
