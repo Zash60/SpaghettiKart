@@ -618,6 +618,10 @@ void update_race_position_data(void) {
 void func_8028F474(void) {
     s32 i;
 
+    {
+        extern void Bf_RecordTick(void);
+        Bf_RecordTick();
+    }
     switch (gRaceState) {
         case RACE_IN_PROGRESS:
         case RACE_CALCULATE_RANKS:

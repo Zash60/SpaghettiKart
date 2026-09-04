@@ -1,7 +1,7 @@
 # =================== SSE2NEON ===================
 set(SSE2NEON_DIR ${CMAKE_BINARY_DIR}/_deps/sse2neon)
-# Only download when missing/empty: the fetch returns 0 bytes in sandboxed
-# networks, and re-configure must not clobber a good file.
+# Sandboxed networks return 0 bytes for file(DOWNLOAD); fall back to the
+# vendored copy so re-configure never clobbers/breaks the build.
 if(NOT EXISTS "${SSE2NEON_DIR}/sse2neon.h")
   file(
     DOWNLOAD
@@ -10,7 +10,11 @@ if(NOT EXISTS "${SSE2NEON_DIR}/sse2neon.h")
 endif()
 file(SIZE "${SSE2NEON_DIR}/sse2neon.h" _sse2neon_size)
 if(_sse2neon_size EQUAL 0)
-  message(FATAL_ERROR "sse2neon.h is empty (network fetch failed); place a valid copy at ${SSE2NEON_DIR}/sse2neon.h and re-configure")
+  file(COPY "${CMAKE_SOURCE_DIR}/cmake/fetch-fallback/sse2neon.h" DESTINATION "${SSE2NEON_DIR}")
+  file(SIZE "${SSE2NEON_DIR}/sse2neon.h" _sse2neon_size)
+endif()
+if(_sse2neon_size EQUAL 0)
+  message(FATAL_ERROR "sse2neon.h unavailable (network fetch failed and no vendored fallback)")
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SSE2NEON_DIR})
@@ -25,7 +29,11 @@ if(NOT EXISTS "${SEMVER_DIR}/semver.hpp")
 endif()
 file(SIZE "${SEMVER_DIR}/semver.hpp" _semver_size)
 if(_semver_size EQUAL 0)
-  message(FATAL_ERROR "semver.hpp is empty (network fetch failed); place a valid copy at ${SEMVER_DIR}/semver.hpp and re-configure")
+  file(COPY "${CMAKE_SOURCE_DIR}/cmake/fetch-fallback/semver.hpp" DESTINATION "${SEMVER_DIR}")
+  file(SIZE "${SEMVER_DIR}/semver.hpp" _semver_size)
+endif()
+if(_semver_size EQUAL 0)
+  message(FATAL_ERROR "semver.hpp unavailable (network fetch failed and no vendored fallback)")
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SEMVER_DIR})
@@ -62,6 +70,13 @@ target_include_directories(
 add_subdirectory(libultraship ${CMAKE_BINARY_DIR}/libultraship)
 add_dependencies(${PROJECT_NAME} libultraship)
 target_link_libraries(${PROJECT_NAME} PRIVATE libultraship)
+# libultraship's file(DOWNLOAD) for stb returns 0 bytes on sandboxed
+# networks; restore the vendored copy after its configure ran.
+file(SIZE "${CMAKE_BINARY_DIR}/_deps/stb/stb_image.h" _stb_size)
+if(_stb_size EQUAL 0)
+  file(COPY "${CMAKE_SOURCE_DIR}/cmake/fetch-fallback/stb_image.h"
+       DESTINATION "${CMAKE_BINARY_DIR}/_deps/stb")
+endif()
 
 # Torch
 option(USE_STANDALONE "Build as a standalone executable" OFF)

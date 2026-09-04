@@ -1,6 +1,7 @@
 #include "PortMenu.h"
 #include "UIWidgets.h"
 #include "port/Game.h"
+#include "port/BfCmd.h"
 #include "ship/window/gui/GuiMenuBar.h"
 #include "ship/window/gui/GuiElement.h"
 #include <variant>
@@ -508,6 +509,7 @@ void PortMenu::AddRulesets() {
 
 void PortMenu::AddDevTools() {
     AddMenuEntry("Developer", "gSettings.Menu.DevToolsSidebarSection");
+    Bf_RegisterCommands();
     AddSidebarEntry("Developer", "General", 3);
     WidgetPath path = { "Developer", "General", SECTION_COLUMN_1 };
 #ifdef __SWITCH__
