@@ -110,6 +110,12 @@ android {
         assets.srcDir(stagedTorchAssets)
     }
 
+    // Explicit: Provider-based srcDir inference does not reliably schedule
+    // stageTorchAssets (seen missing from CI APKs), so depend directly.
+    tasks.matching { it.name == "mergeDebugAssets" || it.name == "mergeReleaseAssets" }.configureEach {
+        dependsOn(stageTorchAssets)
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
