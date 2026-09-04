@@ -13,7 +13,6 @@
 #include "engine/tracks/Track.h"
 #include "engine/tracks/KalimariDesert.h"
 #include "engine/tracks/ToadsTurnpike.h"
-#include "port/ScattershotReplay.h"
 
 #ifdef __SWITCH__
 #include <ship/port/switch/SwitchImpl.h>
@@ -569,30 +568,6 @@ void PortMenu::AddDevTools() {
         .Options(ButtonOptions().Tooltip(
             "Enables the console window, allowing you to input commands. Type help for some examples"))
         .WindowName("Console");
-
-    path = { "Developer", "Scattershot", SECTION_COLUMN_1 };
-    AddSidebarEntry("Developer", "Scattershot", 1);
-    AddWidget(path, "Load Replay", WIDGET_BUTTON)
-        .Callback([](WidgetInfo& info) {
-            bool ok = Scattershot_TryLoad();
-            SPDLOG_INFO(ok ? "Scattershot replay loaded" : "Scattershot replay NOT found");
-        })
-        .Options(ButtonOptions().Tooltip("Loads best.mkr (scattershot TAS) and takes over P1 inputs during the race"));
-    AddWidget(path, "Stop Replay", WIDGET_BUTTON)
-        .Callback([](WidgetInfo& info) {
-            Scattershot_Stop();
-        })
-        .Options(ButtonOptions().Tooltip("Gives control back to the player"));
-    AddWidget(path, "Dump Collision", WIDGET_BUTTON)
-        .Callback([](WidgetInfo& info) {
-            std::string p = Ship::Context::GetRawInstance()->GetAppDirectoryPath() + "/collision_dump.bin";
-            int n = Scattershot_DumpCollision(p.c_str());
-            SPDLOG_INFO("Scattershot collision dump: {} tris -> {}", n, p);
-        })
-        .Options(ButtonOptions().Tooltip("Dumps Mario Raceway collision mesh for the headless bruteforcer"));
-    AddWidget(path, "Auto-load on Go", WIDGET_CVAR_CHECKBOX)
-        .CVar("gScattershotAutoLoad")
-        .Options(CheckboxOptions().Tooltip("Automatically loads best.mkr when the 3-2-1-Go countdown ends").DefaultValue(true));
 }
 
 void PortMenu::AddSceneVisibility() {

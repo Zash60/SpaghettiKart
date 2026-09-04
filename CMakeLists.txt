@@ -39,7 +39,6 @@ endif()
 
 # Toggle for GLES (Required for many ARM/Mobile platforms)
 option(USE_OPENGLES "Use OpenGLES instead of Desktop OpenGL" OFF)
-option(SCATTERSHOT_HEADLESS "Build headless lib for scattershot" OFF)
 
 # Set game compilation version
 set(VERSION us)
@@ -141,35 +140,6 @@ target_include_directories(
                           ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_definitions(${PROJECT_NAME} PRIVATE YAML_CPP_STATIC_DEFINE)
 
-if(SCATTERSHOT_HEADLESS)
-  # whitelist minimal for real update_player(): only physics core, no render/audio/menu/engine/port
-  file(GLOB HEADLESS_FILES CONFIGURE_DEPENDS
-    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-    "src/code_80005FD0.c"
-    "src/code_800029B0.c"
-    "src/player_controller.c"
-    "src/racing/math_util.c"
-    "src/racing/collision.c"
-    "src/buffers/*.c"
-    "src/data/*.c"
-    "src/math_util_2.c"
-    "src/course_metadata.c"
-    "src/gbiMacro.c"
-    "src/os/gu*.c"
-  )
-  add_library(SpaghettifyHeadless STATIC ${HEADLESS_FILES})
-  target_compile_definitions(SpaghettifyHeadless PRIVATE HEADLESS=1 NO_RENDER=1 NO_AUDIO=1 YAML_CPP_STATIC_DEFINE F3DEX_GBI=1 VERSION_US=1 _LANGUAGE_C NDEBUG NON_MATCHING=1 NON_EQUIVALENT=1 AVOID_UB=1 ENABLE_RUMBLE=1 _USE_MATH_DEFINES SPAGHETTI_VERSION="${PROJECT_VERSION}")
-  target_compile_options(SpaghettifyHeadless PRIVATE -Wno-narrowing -Wno-error=narrowing -fpermissive -Wno-error -ffunction-sections -fdata-sections)
-  target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/assets ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/include ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/include/libultraship)
-  # threadpool for libultraship ResourceManager
-  if(EXISTS ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
-    target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
-  endif()
-  if(TARGET threadpool)
-    add_dependencies(SpaghettifyHeadless threadpool)
-  endif()
-endif()
-
 if(SPAGHETTIKART_IOS)
   target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_IOS=1)
   set_xcode_property(${PROJECT_NAME} PRODUCT_BUNDLE_IDENTIFIER ${PROJECT_ID}
@@ -195,41 +165,6 @@ endif()
 include(cmake/dependencies/common.cmake)
 
 include(cmake/dependencies/FindLib.cmake)
-
-# headless needs headers from libultraship fetch (threadpool, imgui, sdl, toml++, etc)
-if(SCATTERSHOT_HEADLESS AND TARGET SpaghettifyHeadless)
-  if(EXISTS ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include/BS_thread_pool.hpp)
-    target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
-  elseif(EXISTS ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
-    target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/threadpool-src/include)
-  endif()
-  if(EXISTS ${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui.h)
-    target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/imgui-src)
-  elseif(EXISTS ${CMAKE_BINARY_DIR}/_deps/imgui-src/include)
-    target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/imgui-src/include)
-  endif()
-  if(EXISTS ${CMAKE_BINARY_DIR}/_deps/sdl2-src/include/SDL.h)
-    target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/sdl2-src/include)
-  elseif(EXISTS ${CMAKE_BINARY_DIR}/_deps/sdl2-src/include/SDL2/SDL.h)
-    target_include_directories(SpaghettifyHeadless PRIVATE ${CMAKE_BINARY_DIR}/_deps/sdl2-src/include/SDL2)
-  endif()
-  if(EXISTS /usr/include/SDL2/SDL.h)
-    target_include_directories(SpaghettifyHeadless PRIVATE /usr/include/SDL2)
-  endif()
-  if(EXISTS /usr/include/SDL2)
-    target_include_directories(SpaghettifyHeadless PRIVATE /usr/include/SDL2)
-  endif()
-  foreach(_toml
-    ${CMAKE_BINARY_DIR}/_deps/tomlplusplus-src/include
-    ${CMAKE_BINARY_DIR}/_deps/tomlplusplus-src
-    ${CMAKE_BINARY_DIR}/../_deps/tomlplusplus-src/include
-    ${CMAKE_BINARY_DIR}/../../_deps/tomlplusplus-src/include
-  )
-    if(EXISTS ${_toml}/toml++/toml.hpp)
-      target_include_directories(SpaghettifyHeadless PRIVATE ${_toml})
-    endif()
-  endforeach()
-endif()
 
 # fmt's consteval format-string checking fails to compile under newer
 # AppleClang (Xcode 16+) with the spdlog/fmt versions in use (both vcpkg's on
@@ -396,8 +331,4 @@ if(NOT ANDROID)
   set(CPACK_PROJECT_CONFIG_FILE
       ${CMAKE_SOURCE_DIR}/cmake/configure-packaging.cmake)
   include(cmake/packaging.cmake)
-endif()
-
-if(SCATTERSHOT_HEADLESS AND NOT ANDROID)
-  add_subdirectory(tools/mk64-scattershot)
 endif()

@@ -449,10 +449,6 @@ void start_race(void) {
 
     if (gRaceState == RACE_STAGING) {
         gRaceState = RACE_IN_PROGRESS;
-        {
-            extern void Scattershot_AutoLoad(void);
-            Scattershot_AutoLoad();
-        }
     }
 
     for (i = 0; i < NUM_PLAYERS; i++) {
@@ -622,10 +618,6 @@ void update_race_position_data(void) {
 void func_8028F474(void) {
     s32 i;
 
-    {
-        extern void Scattershot_OverrideController(void);
-        Scattershot_OverrideController();
-    }
     switch (gRaceState) {
         case RACE_IN_PROGRESS:
         case RACE_CALCULATE_RANKS:
@@ -931,11 +923,7 @@ void func_8028FCBC(void) {
                 D_800DC5B0 = 0;
                 D_800DC5B8 = 1;
                 CM_SpawnStarterLakitu(); // func_80078F64();
-                LUSLOG_DEBUG("Scattershot marker STAGING timer=%d", gGlobalTimer);
-                {
-                    extern void Scattershot_AutoLoad(void);
-                    Scattershot_AutoLoad();
-                }
+                LUSLOG_DEBUG("STAGING timer=%d", gGlobalTimer);
                 if ((gModeSelection == TIME_TRIALS) && (bCourseGhostDisabled == 0)) {
                     phi_v0_4 = 0x1;
                     //! @warning this used to be < gCurrentCourseId
