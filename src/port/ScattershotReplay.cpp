@@ -54,7 +54,7 @@ static bool TryLoadScattershotReplay(void){
 }
 bool Scattershot_TryLoad(void){ return TryLoadScattershotReplay(); }
 extern "C" void Scattershot_AutoLoad(void){
- SPDLOG_INFO("Scattershot AutoLoad: go! (autoload cvar={})", CVarGetInteger("gScattershotAutoLoad", 1));
+ SPDLOG_INFO("Scattershot AutoLoad: go! (autoload cvar={}, timer={})", CVarGetInteger("gScattershotAutoLoad", 1), gGlobalTimer);
  if (CVarGetInteger("gScattershotAutoLoad", 1) == 0) return;
  if (gScattershotActive) return;
  TryLoadScattershotReplay();
